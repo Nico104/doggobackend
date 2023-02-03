@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model User {
+  username           String   @id
+  useremail          String   @unique
+  userSignUpDateTime DateTime @default(now())
+  userpassword       String
+  user_pet_profile   Pet[]
+}
+
+model Pet {
+  profile_id                  Int                    @id @default(autoincrement())
+  profile_creation_DateTime   DateTime               @default(now())
+  pet_profile_user            User                   @relation(fields: [pet_profile_username], references: [username])
+  pet_profile_username        String
+  pet_name                    String
+  pet_gender                  Gender
+  pet_chip_id                 String
+  pet_description             Description[]
+  pet_important_information   ImportantInformation[]
+  pet_owner_name              String
+  pet_owner_telephone_numbers PhoneNumber[]
+  pet_owner_email             String
+  pet_owner_living_place      String
+  pet_owner_facebook          String
+  pet_owner_instagram         String
+  pet_documents               Document[]
+  pet_pictures                PetPicture[]
+  pet_is_Lost                 Boolean
+  pet_profile_scans           Scan[]
+}
+
+model Description {
+  description_id Int  @id @default(autoincrement())
+  Pet            Pet? @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id  Int?
+}
+
+model ImportantInformation {
+  important_information_id Int  @id @default(autoincrement())
+  Pet                      Pet? @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id            Int?
+}
+
+model PhoneNumber {
+  phone_number_id       Int    @id @default(autoincrement())
+  Pet                   Pet?   @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id         Int?
+  phone_number          String
+  phone_number_priority Int
+}
+
+model Document {
+  document_id   Int    @id @default(autoincrement())
+  Pet           Pet?   @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id Int?
+  document_name String
+  document_link String
+}
+
+model PetPicture {
+  pet_picture_id       Int    @id @default(autoincrement())
+  Pet                  Pet?   @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id        Int?
+  pet_picture_link     String
+  pet_picture_priority Int
+}
+
+model Scan {
+  scan_id       Int      @id @default(autoincrement())
+  Pet           Pet?     @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id Int?
+  scan_DateTime DateTime @default(now())
+}
