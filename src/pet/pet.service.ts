@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Pet, Prisma } from '@prisma/client';
+import { Description, ImportantInformation, Pet, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -11,6 +11,13 @@ export class PetService {
     ): Promise<Pet | null> {
         return this.prisma.pet.findUnique({
             where: PetWhereUniqueInput,
+            include: {
+                pet_description: true,
+                pet_documents: true,
+                pet_important_information: true,
+                pet_owner_telephone_numbers: true,
+                pet_pictures: true,
+            }
         });
     }
 
@@ -21,13 +28,16 @@ export class PetService {
         where?: Prisma.PetWhereInput;
         orderBy?: Prisma.PetOrderByWithRelationInput;
     }): Promise<Pet[]> {
-        const { skip, take, cursor, where, orderBy } = params;
+        const { skip, take, cursor, where, orderBy, } = params;
         return this.prisma.pet.findMany({
             skip,
             take,
             cursor,
             where,
             orderBy,
+            include: {
+                pet_pictures: true,
+            }
         });
     }
 
@@ -50,6 +60,46 @@ export class PetService {
 
     async deletePet(where: Prisma.PetWhereUniqueInput): Promise<Pet> {
         return this.prisma.pet.delete({
+            where,
+        });
+    }
+
+    //Description
+    async upsertDescription(params: {
+        create: Prisma.DescriptionCreateInput;
+        update: Prisma.DescriptionUpdateInput;
+        where: Prisma.DescriptionWhereUniqueInput;
+    }): Promise<Description> {
+        const { create, update, where } = params;
+        return this.prisma.description.upsert({
+            create,
+            update,
+            where,
+        });
+    }
+
+    async deleteDescription(where: Prisma.DescriptionWhereUniqueInput): Promise<Description> {
+        return this.prisma.description.delete({
+            where,
+        });
+    }
+
+    //Important Information
+    async upsertImportantInformation(params: {
+        create: Prisma.ImportantInformationCreateInput;
+        update: Prisma.ImportantInformationUpdateInput;
+        where: Prisma.ImportantInformationWhereUniqueInput;
+    }): Promise<ImportantInformation> {
+        const { create, update, where } = params;
+        return this.prisma.importantInformation.upsert({
+            create,
+            update,
+            where,
+        });
+    }
+
+    async deleteImportantInformation(where: Prisma.ImportantInformationWhereUniqueInput): Promise<ImportantInformation> {
+        return this.prisma.importantInformation.delete({
             where,
         });
     }

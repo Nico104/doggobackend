@@ -10,11 +10,10 @@ export class UserController {
 
     @Post('signupUser')
     async signupUser(
-        @Body() userData: { username: string; useremail: string; userpassword: string },
+        @Body() userData: { useremail: string; userpassword: string },
     ): Promise<UserModel> {
         return this.userService.createUser(
             {
-                username: userData.username,
                 useremail: userData.useremail,
                 userpassword: userData.userpassword,
             }
