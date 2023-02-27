@@ -12,11 +12,25 @@ export class PetService {
         return this.prisma.pet.findUnique({
             where: PetWhereUniqueInput,
             include: {
-                pet_description: true,
+                pet_description: {
+                    include: {
+                        description_language: true
+                    }
+                },
+                pet_important_information: {
+                    include: {
+                        important_information_language: true
+                    }
+                },
                 pet_documents: true,
-                pet_important_information: true,
                 pet_owner_telephone_numbers: true,
                 pet_pictures: true,
+                Tag: {
+                    include: {
+                        CollarTagPersonalisation: true
+                    }
+                },
+                pet_profile_scans: true,
             }
         });
     }

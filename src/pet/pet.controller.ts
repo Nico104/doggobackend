@@ -22,10 +22,10 @@ export class PetController {
     }
 
     @Get('getPet/:profile_id')
-    async getUserPet(@Param('profile_id') profile_id: number
+    async getUserPet(@Param('profile_id') profile_id: String
     ): Promise<PetModel> {
         return this.petService.Pet(
-            { profile_id: profile_id }
+            { profile_id: Number(profile_id) }
         );
     }
 
@@ -34,7 +34,7 @@ export class PetController {
         @Body() data: {
             useremail: string;
             pet_name: string;
-            pet_gender: string;
+            pet_is_male: boolean;
             pet_chip_id?: string | null;
             pet_owner_name?: string | null
             pet_owner_email?: string | null
@@ -51,7 +51,7 @@ export class PetController {
                     }
                 },
                 pet_name: data.pet_name,
-                pet_gender: data.pet_gender == "MALE" ? 'MALE' : 'FEMALE',
+                pet_gender: data.pet_is_male ? 'MALE' : 'FEMALE',
                 pet_chip_id: data.pet_chip_id,
                 pet_owner_name: data.pet_owner_name,
                 pet_owner_email: data.pet_owner_email,
@@ -122,7 +122,11 @@ export class PetController {
         return this.petService.upsertDescription(
             {
                 create: {
-                    description_language_key: data.language_key,
+                    description_language: {
+                        connect: {
+                            language_key: data.language_key
+                        }
+                    },
                     Pet: {
                         connect: {
                             profile_id: data.petProfile_id
@@ -172,7 +176,11 @@ export class PetController {
         return this.petService.upsertImportantInformation(
             {
                 create: {
-                    important_information_language_key: data.language_key,
+                    important_information_language: {
+                        connect: {
+                            language_key: data.language_key
+                        }
+                    },
                     Pet: {
                         connect: {
                             profile_id: data.petProfile_id

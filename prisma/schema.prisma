@@ -12,11 +12,57 @@ enum Gender {
   FEMALE
 }
 
+enum Color {
+  PINK
+  BLUE
+  GREEN
+  YELLOW
+  RED
+  BLACK
+  WHITE
+}
+
+enum LetterStyle {
+  April1
+  April2
+  April3
+}
+
+model Language {
+  language_key         String                 @id @unique
+  language_label       String
+  language_image_path  String
+  Description          Description[]
+  ImportantInformation ImportantInformation[]
+}
+
 model User {
-  useremail          String   @id @unique
-  userSignUpDateTime DateTime @default(now())
+  useremail          String      @id @unique
+  userSignUpDateTime DateTime    @default(now())
   userpassword       String
   user_pet_profile   Pet[]
+  Tag                CollarTag[]
+}
+
+model CollarTag {
+  collarTag_id             String                    @id @unique
+  assigned_pet             Pet?                      @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id            Int?
+  assigned_user            User?                     @relation(fields: [assignedUseremail], references: [useremail])
+  assignedUseremail        String?
+  activationCode           String                    @unique
+  CollarTagPersonalisation CollarTagPersonalisation?
+}
+
+model CollarTagPersonalisation {
+  collarTagPersonalisationId Int          @id @default(autoincrement())
+  collarTag                  CollarTag    @relation(fields: [collarTag_id], references: [collarTag_id])
+  collarTag_id               String       @unique
+  primaryColor               Color
+  secondaryColor             Color
+  baseColor                  Color
+  letter                     String?
+  letterStyle                LetterStyle?
 }
 
 model Pet {
@@ -39,21 +85,24 @@ model Pet {
   pet_pictures                PetPicture[]
   pet_is_Lost                 Boolean
   pet_profile_scans           Scan[]
+  Tag                         CollarTag[]
 }
 
 model Description {
-  Pet                      Pet    @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                      Pet      @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id            Int
   description_text         String
+  description_language     Language @relation(fields: [description_language_key], references: [language_key])
   description_language_key String
 
   @@id([petProfile_id, description_language_key])
 }
 
 model ImportantInformation {
-  Pet                                Pet    @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                                Pet      @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id                      Int
   important_information_text         String
+  important_information_language     Language @relation(fields: [important_information_language_key], references: [language_key])
   important_information_language_key String
 
   @@id([petProfile_id, important_information_language_key])
@@ -85,8 +134,9 @@ model PetPicture {
 }
 
 model Scan {
-  scan_id       Int      @id @default(autoincrement())
-  Pet           Pet      @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id Int
-  scan_DateTime DateTime @default(now())
+  scan_id         Int      @id @default(autoincrement())
+  Pet             Pet      @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id   Int
+  scan_DateTime   DateTime @default(now())
+  scan_ip_address String
 }
