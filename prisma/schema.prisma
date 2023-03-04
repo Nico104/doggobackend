@@ -12,16 +12,6 @@ enum Gender {
   FEMALE
 }
 
-enum Color {
-  PINK
-  BLUE
-  GREEN
-  YELLOW
-  RED
-  BLACK
-  WHITE
-}
-
 enum LetterStyle {
   April1
   April2
@@ -58,11 +48,15 @@ model CollarTagPersonalisation {
   collarTagPersonalisationId Int          @id @default(autoincrement())
   collarTag                  CollarTag    @relation(fields: [collarTag_id], references: [collarTag_id])
   collarTag_id               String       @unique
-  primaryColor               Color
-  secondaryColor             Color
-  baseColor                  Color
+  primaryColorName           String
+  secondaryColorName         String
+  baseColorName              String
   letter                     String?
   letterStyle                LetterStyle?
+
+  appBackgroundColorHex   String
+  appPetTagPrimaryColor   String
+  appPetTagSecundaryColor String
 }
 
 model Pet {
@@ -71,7 +65,7 @@ model Pet {
   pet_profile_user            User                   @relation(fields: [pet_profile_username], references: [useremail])
   pet_profile_username        String
   pet_name                    String
-  pet_gender                  Gender
+  pet_gender                  Gender?
   pet_chip_id                 String?
   pet_description             Description[]
   pet_important_information   ImportantInformation[]

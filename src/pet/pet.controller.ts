@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender } from '@prisma/client';
 
 @Controller('pet')
 export class PetController {
@@ -22,7 +22,7 @@ export class PetController {
     }
 
     @Get('getPet/:profile_id')
-    async getUserPet(@Param('profile_id') profile_id: String
+    async getUserPet(@Param('profile_id') profile_id: string
     ): Promise<PetModel> {
         return this.petService.Pet(
             { profile_id: Number(profile_id) }
@@ -32,33 +32,35 @@ export class PetController {
     @Post('createPet')
     async createPet(
         @Body() data: {
-            useremail: string;
+            //!get user From logged in User token
+            // useremail: string;
             pet_name: string;
-            pet_is_male: boolean;
+            pet_gender?: string;
             pet_chip_id?: string | null;
-            pet_owner_name?: string | null
-            pet_owner_email?: string | null
-            pet_owner_living_place?: string | null
-            pet_owner_facebook?: string | null
-            pet_owner_instagram?: string | null
+            pet_owner_name?: string | null;
+            pet_owner_email?: string | null;
+            pet_owner_living_place?: string | null;
+            pet_owner_facebook?: string | null;
+            pet_owner_instagram?: string | null;
+            pet_is_Lost: boolean;
         },
     ): Promise<PetModel> {
         return this.petService.createPet(
             {
                 pet_profile_user: {
                     connect: {
-                        useremail: data.useremail
+                        useremail: 'test'
                     }
                 },
                 pet_name: data.pet_name,
-                pet_gender: data.pet_is_male ? 'MALE' : 'FEMALE',
+                pet_gender: data.pet_gender != null ? this.petService.parseGenderFromString(data.pet_gender) : null,
                 pet_chip_id: data.pet_chip_id,
                 pet_owner_name: data.pet_owner_name,
                 pet_owner_email: data.pet_owner_email,
                 pet_owner_living_place: data.pet_owner_living_place,
                 pet_owner_facebook: data.pet_owner_facebook,
                 pet_owner_instagram: data.pet_owner_instagram,
-                pet_is_Lost: false,
+                pet_is_Lost: data.pet_is_Lost,
             }
         );
     }

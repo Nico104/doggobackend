@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, ImportantInformation, Pet, Prisma } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -50,7 +50,25 @@ export class PetService {
             where,
             orderBy,
             include: {
+                pet_description: {
+                    include: {
+                        description_language: true
+                    }
+                },
+                pet_important_information: {
+                    include: {
+                        important_information_language: true
+                    }
+                },
+                pet_documents: true,
+                pet_owner_telephone_numbers: true,
                 pet_pictures: true,
+                Tag: {
+                    include: {
+                        CollarTagPersonalisation: true
+                    }
+                },
+                pet_profile_scans: true,
             }
         });
     }
@@ -116,5 +134,13 @@ export class PetService {
         return this.prisma.importantInformation.delete({
             where,
         });
+    }
+
+    parseGenderFromString(gender: string): Gender {
+        if (gender.toUpperCase() == "MALE") {
+            return Gender.MALE;
+        } else {
+            return Gender.FEMALE;
+        }
     }
 }
