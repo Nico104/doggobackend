@@ -19,11 +19,15 @@ enum LetterStyle {
 }
 
 model Language {
-  language_key         String                 @id @unique
-  language_label       String
-  language_image_path  String
-  Description          Description[]
-  ImportantInformation ImportantInformation[]
+  language_key                          String                 @id @unique
+  language_label                        String
+  language_image_path                   String
+  language_country                      String
+  language_country_prefix               String
+  language_isAvailableForAppTranslation Boolean                @default(false)
+  Description                           Description[]
+  ImportantInformation                  ImportantInformation[]
+  PhoneNumber                           PhoneNumber[]
 }
 
 model User {
@@ -103,10 +107,12 @@ model ImportantInformation {
 }
 
 model PhoneNumber {
-  Pet                   Pet?   @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                   Pet?     @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id         Int
   phone_number          String
   phone_number_priority Int
+  phone_number_Language Language @relation(fields: [languageLanguage_key], references: [language_key])
+  languageLanguage_key  String   @default("en")
 
   @@id([petProfile_id, phone_number])
 }

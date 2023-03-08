@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag } from '@prisma/client';
 
 @Controller('pet')
 export class PetController {
@@ -219,4 +219,57 @@ export class PetController {
             },
         );
     }
+
+    //Language
+    @Get('getLanguages')
+    async getLanguages(): Promise<Language[]> {
+        return this.petService.Language({});
+    }
+
+    //Tags
+    @Get('getUserTags')
+    async getUserTags(): Promise<CollarTag[]> {
+        return this.petService.Tags({
+            where: {
+                assigned_user: {
+                    useremail: "test"
+                }
+            }
+        });
+    }
+
+    @Post('createTag')
+    async createTag(
+        @Body() data: {
+            activationCode: string;
+            collarTag_id: string;
+            appBackgroundColorHex: string;
+            primaryColorName: string;
+            secondaryColorName: string;
+            baseColorName: string;
+            letter: string;
+            appPetTagPrimaryColor: string;
+            appPetTagSecundaryColor: string;
+        },
+    ): Promise<CollarTag> {
+        return this.petService.createTag(
+            {
+                activationCode: data.activationCode,
+                collarTag_id: data.collarTag_id,
+                CollarTagPersonalisation: {
+                    create: {
+                        appBackgroundColorHex: data.appBackgroundColorHex,
+                        primaryColorName: data.primaryColorName,
+                        secondaryColorName: data.secondaryColorName,
+                        baseColorName: data.baseColorName,
+                        letter: data.letter,
+                        appPetTagPrimaryColor: data.appPetTagPrimaryColor,
+                        appPetTagSecundaryColor: data.appPetTagSecundaryColor,
+
+                    }
+                }
+            }
+        );
+    }
+
 }

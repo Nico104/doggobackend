@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Prisma } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -61,7 +61,11 @@ export class PetService {
                     }
                 },
                 pet_documents: true,
-                pet_owner_telephone_numbers: true,
+                pet_owner_telephone_numbers: {
+                    include: {
+                        phone_number_Language: true
+                    }
+                },
                 pet_pictures: true,
                 Tag: {
                     include: {
@@ -135,6 +139,52 @@ export class PetService {
             where,
         });
     }
+
+    //Language
+    async Language(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.LanguageWhereUniqueInput;
+        where?: Prisma.LanguageWhereInput;
+        orderBy?: Prisma.LanguageOrderByWithRelationInput;
+    }): Promise<Language[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.language.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+        });
+    }
+
+    //Tags
+    async Tags(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.CollarTagWhereUniqueInput;
+        where?: Prisma.CollarTagWhereInput;
+        orderBy?: Prisma.CollarTagOrderByWithRelationInput;
+    }): Promise<CollarTag[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.collarTag.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+            include: {
+                CollarTagPersonalisation: true
+            }
+        });
+    }
+
+    async createTag(data: Prisma.CollarTagCreateInput): Promise<CollarTag> {
+        return this.prisma.collarTag.create({
+            data,
+        });
+    }
+
 
     parseGenderFromString(gender: string): Gender {
         if (gender.toUpperCase() == "MALE") {
