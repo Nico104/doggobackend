@@ -185,12 +185,51 @@ export class PetService {
         });
     }
 
+    async connectTagFromPetProfile(data: {
+        collarTagId: string,
+        profileId: number,
+    }): Promise<Pet> {
+        return this.prisma.pet.update({
+            where: {
+                profile_id: data.profileId
+            },
+            data: {
+                Tag: {
+                    connect: {
+                        collarTag_id: data.collarTagId
+                    }
+                }
+            }
+        });
+    }
+
+    async disconnectTagFromPetProfile(data: {
+        collarTagId: string,
+        profileId: number,
+    }): Promise<Pet> {
+        return this.prisma.pet.update({
+            where: {
+                profile_id: data.profileId
+            },
+            data: {
+                Tag: {
+                    disconnect: {
+                        collarTag_id: data.collarTagId
+                    }
+                }
+            }
+        });
+    }
+
 
     parseGenderFromString(gender: string): Gender {
-        if (gender.toUpperCase() == "MALE") {
-            return Gender.MALE;
-        } else {
-            return Gender.FEMALE;
+        switch (gender.toUpperCase()) {
+            case "MALE":
+                return Gender.MALE;
+            case "FEMALE":
+                return Gender.FEMALE;
+            default:
+                return Gender.NONE;
         }
     }
 }

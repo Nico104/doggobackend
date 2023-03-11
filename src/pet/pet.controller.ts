@@ -53,7 +53,7 @@ export class PetController {
                     }
                 },
                 pet_name: data.pet_name,
-                pet_gender: data.pet_gender != null ? this.petService.parseGenderFromString(data.pet_gender) : null,
+                pet_gender: this.petService.parseGenderFromString(data.pet_gender),
                 pet_chip_id: data.pet_chip_id,
                 pet_owner_name: data.pet_owner_name,
                 pet_owner_email: data.pet_owner_email,
@@ -68,32 +68,33 @@ export class PetController {
     @Post('updatePet')
     async updatePet(
         @Body() data: {
-            petProfile_id: number;
+            profile_id: number;
             pet_name: string;
-            pet_gender: string;
+            pet_gender?: string;
             pet_chip_id?: string | null;
-            pet_owner_name?: string | null
-            pet_owner_email?: string | null
-            pet_owner_living_place?: string | null
-            pet_owner_facebook?: string | null
-            pet_owner_instagram?: string | null
+            pet_owner_name?: string | null;
+            pet_owner_email?: string | null;
+            pet_owner_living_place?: string | null;
+            pet_owner_facebook?: string | null;
+            pet_owner_instagram?: string | null;
+            pet_is_Lost: boolean;
         },
     ): Promise<PetModel> {
         return this.petService.updatePet(
             {
                 data: {
                     pet_name: data.pet_name,
-                    pet_gender: data.pet_gender == "MALE" ? 'MALE' : 'FEMALE',
+                    pet_gender: this.petService.parseGenderFromString(data.pet_gender),
                     pet_chip_id: data.pet_chip_id,
                     pet_owner_name: data.pet_owner_name,
                     pet_owner_email: data.pet_owner_email,
                     pet_owner_living_place: data.pet_owner_living_place,
                     pet_owner_facebook: data.pet_owner_facebook,
                     pet_owner_instagram: data.pet_owner_instagram,
-                    pet_is_Lost: false,
+                    pet_is_Lost: data.pet_is_Lost,
                 },
                 where: {
-                    profile_id: data.petProfile_id
+                    profile_id: data.profile_id
                 }
             }
         );
@@ -167,7 +168,7 @@ export class PetController {
     }
 
     //ImportantInformation
-    @Post('ImportantInformation')
+    @Post('upsertImportantInformation')
     async upsertImportantInformation(
         @Body() data: {
             petProfile_id: number;
@@ -270,6 +271,32 @@ export class PetController {
                 }
             }
         );
+    }
+
+    @Post('connectTagFromPetProfile')
+    async connectTagFromPetProfile(
+        @Body() data: {
+            profileId: number;
+            collarTagId: string;
+        },
+    ): Promise<PetModel> {
+        return this.petService.connectTagFromPetProfile({
+            profileId: data.profileId,
+            collarTagId: data.collarTagId,
+        });
+    }
+
+    @Post('disconnectTagFromPetProfile')
+    async disconnectTagFromPetProfile(
+        @Body() data: {
+            profileId: number;
+            collarTagId: string;
+        },
+    ): Promise<PetModel> {
+        return this.petService.disconnectTagFromPetProfile({
+            profileId: data.profileId,
+            collarTagId: data.collarTagId,
+        });
     }
 
 }

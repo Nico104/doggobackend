@@ -9,8 +9,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         super();
     }
 
-    async validate(username: string, userpassword: string) {
-        const user = await this.authService.validateUser(username, userpassword);
+    async validate(useremail: string, userpassword: string) {
+        const user = await this.authService.validateUser(useremail, userpassword);
 
         if (!user) {
             throw new UnauthorizedException();

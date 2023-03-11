@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Controller('user')
 export class UserController {
@@ -15,7 +16,7 @@ export class UserController {
         return this.userService.createUser(
             {
                 useremail: userData.useremail,
-                userpassword: userData.userpassword,
+                userpassword: bcrypt.hashSync(userData.userpassword, 10),
             }
         );
     }
