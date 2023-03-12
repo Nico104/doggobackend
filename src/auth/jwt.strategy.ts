@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: any) {
         // const user = aait this.userService.getUser(payload.username) -> mit den konn man zusätzliche sochen zrugschicken de net in Payload sein
         return {
-            username: payload.username
+            useremail: payload.useremail
             //...user  donn konnsch den user mitgeben um olle Daten oder olle de willsch fan User zrugzuschicken
         }
     }

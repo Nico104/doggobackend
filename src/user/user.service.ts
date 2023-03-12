@@ -53,4 +53,19 @@ export class UserService {
             where,
         });
     }
+
+    /**
+   * Checcks if a useremail is available
+   * @param useremail for the useremail searched for
+   * @returns 0 if the Useremail is available, otherweise returns 1
+   */
+    async isUseremailAvailable(
+        useremail: string
+    ): Promise<number> {
+        return this.prisma.user.count({
+            where: {
+                useremail: useremail
+            }
+        })
+    }
 }

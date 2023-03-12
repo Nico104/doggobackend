@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('pet')
 export class PetController {
@@ -9,13 +10,14 @@ export class PetController {
     ) { }
 
     //Pet
+    @UseGuards(JwtAuthGuard)
     @Get('getUserPets')
-    async getUserPets(
-    ): Promise<PetModel[]> {
+    async getUserPets(@Request() req: any): Promise<PetModel[]> {
+        console.log(req.user);
         return this.petService.Pets(
             {
                 where: {
-                    pet_profile_username: 'test'
+                    pet_profile_username: req.user.useremail
                 },
             }
         );
