@@ -31,11 +31,11 @@ export class PetController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('createPet')
     async createPet(
+        @Request() req: any,
         @Body() data: {
-            //!get user From logged in User token
-            // useremail: string;
             pet_name: string;
             pet_gender?: string;
             pet_chip_id?: string | null;
@@ -51,7 +51,7 @@ export class PetController {
             {
                 pet_profile_user: {
                     connect: {
-                        useremail: 'test'
+                        useremail: req.user.useremail
                     }
                 },
                 pet_name: data.pet_name,
@@ -67,8 +67,10 @@ export class PetController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('updatePet')
     async updatePet(
+        @Request() req: any,
         @Body() data: {
             profile_id: number;
             pet_name: string;
@@ -82,145 +84,190 @@ export class PetController {
             pet_is_Lost: boolean;
         },
     ): Promise<PetModel> {
-        return this.petService.updatePet(
-            {
-                data: {
-                    pet_name: data.pet_name,
-                    pet_gender: this.petService.parseGenderFromString(data.pet_gender),
-                    pet_chip_id: data.pet_chip_id,
-                    pet_owner_name: data.pet_owner_name,
-                    pet_owner_email: data.pet_owner_email,
-                    pet_owner_living_place: data.pet_owner_living_place,
-                    pet_owner_facebook: data.pet_owner_facebook,
-                    pet_owner_instagram: data.pet_owner_instagram,
-                    pet_is_Lost: data.pet_is_Lost,
-                },
-                where: {
-                    profile_id: data.profile_id
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.profile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.updatePet(
+                {
+                    data: {
+                        pet_name: data.pet_name,
+                        pet_gender: this.petService.parseGenderFromString(data.pet_gender),
+                        pet_chip_id: data.pet_chip_id,
+                        pet_owner_name: data.pet_owner_name,
+                        pet_owner_email: data.pet_owner_email,
+                        pet_owner_living_place: data.pet_owner_living_place,
+                        pet_owner_facebook: data.pet_owner_facebook,
+                        pet_owner_instagram: data.pet_owner_instagram,
+                        pet_is_Lost: data.pet_is_Lost,
+                    },
+                    where: {
+                        profile_id: data.profile_id
+                    }
                 }
-            }
-        );
+            );
+        }
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete('deletePet')
     async deletePet(
+        @Request() req: any,
         @Body() data: {
-            petProfile_id: number;
+            profile_id: number;
         },
     ): Promise<PetModel> {
-        return this.petService.deletePet(
-            {
-                profile_id: data.petProfile_id
-            },
-        );
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.profile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.deletePet(
+                {
+                    profile_id: data.profile_id
+                },
+            );
+        }
+
     }
 
     //Description
+    @UseGuards(JwtAuthGuard)
     @Post('upsertDescription')
     async upsertDescription(
+        @Request() req: any,
         @Body() data: {
             petProfile_id: number;
             language_key: string;
             description_text: string;
         },
     ): Promise<DescriptionModel> {
-        return this.petService.upsertDescription(
-            {
-                create: {
-                    description_language: {
-                        connect: {
-                            language_key: data.language_key
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.petProfile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.upsertDescription(
+                {
+                    create: {
+                        description_language: {
+                            connect: {
+                                language_key: data.language_key
+                            }
+                        },
+                        Pet: {
+                            connect: {
+                                profile_id: data.petProfile_id
+                            }
+                        },
+                        description_text: data.description_text
+                    },
+                    update: {
+                        description_text: data.description_text
+                    },
+                    where: {
+                        petProfile_id_description_language_key: {
+                            description_language_key: data.language_key,
+                            petProfile_id: data.petProfile_id
                         }
                     },
-                    Pet: {
-                        connect: {
-                            profile_id: data.petProfile_id
-                        }
-                    },
-                    description_text: data.description_text
-                },
-                update: {
-                    description_text: data.description_text
-                },
-                where: {
-                    petProfile_id_description_language_key: {
-                        description_language_key: data.language_key,
-                        petProfile_id: data.petProfile_id
-                    }
-                },
-            }
-        );
+                }
+            );
+        }
+
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete('deleteDescription')
     async deleteDescription(
+        @Request() req: any,
         @Body() data: {
             petProfile_id: number;
             language_key: string;
         },
     ): Promise<DescriptionModel> {
-        return this.petService.deleteDescription(
-            {
-                petProfile_id_description_language_key: {
-                    description_language_key: data.language_key,
-                    petProfile_id: data.petProfile_id
-                }
-            },
-        );
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.petProfile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.deleteDescription(
+                {
+                    petProfile_id_description_language_key: {
+                        description_language_key: data.language_key,
+                        petProfile_id: data.petProfile_id
+                    }
+                },
+            );
+        }
+
     }
 
     //ImportantInformation
+    @UseGuards(JwtAuthGuard)
     @Post('upsertImportantInformation')
     async upsertImportantInformation(
+        @Request() req: any,
         @Body() data: {
             petProfile_id: number;
             language_key: string;
             important_information_text: string;
         },
     ): Promise<ImportantInformationModel> {
-        return this.petService.upsertImportantInformation(
-            {
-                create: {
-                    important_information_language: {
-                        connect: {
-                            language_key: data.language_key
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.petProfile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.upsertImportantInformation(
+                {
+                    create: {
+                        important_information_language: {
+                            connect: {
+                                language_key: data.language_key
+                            }
+                        },
+                        Pet: {
+                            connect: {
+                                profile_id: data.petProfile_id
+                            }
+                        },
+                        important_information_text: data.important_information_text
+                    },
+                    update: {
+                        important_information_text: data.important_information_text
+                    },
+                    where: {
+                        petProfile_id_important_information_language_key: {
+                            important_information_language_key: data.language_key,
+                            petProfile_id: data.petProfile_id
                         }
                     },
-                    Pet: {
-                        connect: {
-                            profile_id: data.petProfile_id
-                        }
-                    },
-                    important_information_text: data.important_information_text
-                },
-                update: {
-                    important_information_text: data.important_information_text
-                },
-                where: {
-                    petProfile_id_important_information_language_key: {
-                        important_information_language_key: data.language_key,
-                        petProfile_id: data.petProfile_id
-                    }
-                },
-            }
-        );
+                }
+            );
+        }
+
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete('deleteImportantInformation')
     async deleteImportantInformation(
+        @Request() req: any,
         @Body() data: {
             petProfile_id: number;
             language_key: string;
         },
     ): Promise<ImportantInformationModel> {
-        return this.petService.deleteImportantInformation(
-            {
-                petProfile_id_important_information_language_key: {
-                    important_information_language_key: data.language_key,
-                    petProfile_id: data.petProfile_id
-                }
-            },
-        );
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.petProfile_id,
+            useremail: req.user.useremail,
+        })) {
+            return this.petService.deleteImportantInformation(
+                {
+                    petProfile_id_important_information_language_key: {
+                        important_information_language_key: data.language_key,
+                        petProfile_id: data.petProfile_id
+                    }
+                },
+            );
+        }
+
     }
 
     //Language
@@ -230,51 +277,6 @@ export class PetController {
     }
 
     //Tags
-    @Get('getUserTags')
-    async getUserTags(): Promise<CollarTag[]> {
-        return this.petService.Tags({
-            where: {
-                assigned_user: {
-                    useremail: "test"
-                }
-            }
-        });
-    }
-
-    @Post('createTag')
-    async createTag(
-        @Body() data: {
-            activationCode: string;
-            collarTag_id: string;
-            appBackgroundColorHex: string;
-            primaryColorName: string;
-            secondaryColorName: string;
-            baseColorName: string;
-            letter: string;
-            appPetTagPrimaryColor: string;
-            appPetTagSecundaryColor: string;
-        },
-    ): Promise<CollarTag> {
-        return this.petService.createTag(
-            {
-                activationCode: data.activationCode,
-                collarTag_id: data.collarTag_id,
-                CollarTagPersonalisation: {
-                    create: {
-                        appBackgroundColorHex: data.appBackgroundColorHex,
-                        primaryColorName: data.primaryColorName,
-                        secondaryColorName: data.secondaryColorName,
-                        baseColorName: data.baseColorName,
-                        letter: data.letter,
-                        appPetTagPrimaryColor: data.appPetTagPrimaryColor,
-                        appPetTagSecundaryColor: data.appPetTagSecundaryColor,
-
-                    }
-                }
-            }
-        );
-    }
-
     @Post('connectTagFromPetProfile')
     async connectTagFromPetProfile(
         @Body() data: {

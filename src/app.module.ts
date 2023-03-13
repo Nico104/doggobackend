@@ -4,9 +4,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PetModule } from './pet/pet.module';
 import { UserModule } from './user/user.module';
+import { TagController } from './tag/tag.controller';
+import { TagModule } from './tag/tag.module';
 
 @Module({
-  imports: [PetModule, UserModule, AuthModule],
+  imports: [PetModule, UserModule, AuthModule, TagModule],
   controllers: [AppController],
   providers: [AppService],
 })

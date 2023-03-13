@@ -100,6 +100,23 @@ export class PetService {
         });
     }
 
+    async isUserPetOwner(params: { profile_id: number; useremail: string; }): Promise<Boolean> {
+        return await this.prisma.pet.count({
+            where: {
+                AND: [
+                    {
+                        profile_id: params.profile_id
+                    },
+                    {
+                        pet_profile_user: {
+                            useremail: params.useremail
+                        }
+                    }
+                ]
+            }
+        }) != 0;
+    }
+
     //Description
     async upsertDescription(params: {
         create: Prisma.DescriptionCreateInput;
@@ -159,32 +176,6 @@ export class PetService {
     }
 
     //Tags
-    async Tags(params: {
-        skip?: number;
-        take?: number;
-        cursor?: Prisma.CollarTagWhereUniqueInput;
-        where?: Prisma.CollarTagWhereInput;
-        orderBy?: Prisma.CollarTagOrderByWithRelationInput;
-    }): Promise<CollarTag[]> {
-        const { skip, take, cursor, where, orderBy, } = params;
-        return this.prisma.collarTag.findMany({
-            skip,
-            take,
-            cursor,
-            where,
-            orderBy,
-            include: {
-                CollarTagPersonalisation: true
-            }
-        });
-    }
-
-    async createTag(data: Prisma.CollarTagCreateInput): Promise<CollarTag> {
-        return this.prisma.collarTag.create({
-            data,
-        });
-    }
-
     async connectTagFromPetProfile(data: {
         collarTagId: string,
         profileId: number,
