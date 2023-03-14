@@ -32,11 +32,37 @@ model Language {
 }
 
 model User {
-  useremail          String      @id @unique
-  userSignUpDateTime DateTime    @default(now())
+  useremail          String       @id @unique
+  userSignUpDateTime DateTime     @default(now())
   userpassword       String
   user_pet_profile   Pet[]
   Tag                CollarTag[]
+  UserLogins         UserLogins[]
+}
+
+model PendingAccount {
+  pendingAccountId Int      @id @default(autoincrement())
+  pendingEmail     String
+  verificationCode Int
+  approved         Boolean  @default(false)
+  isValid          Boolean  @default(true)
+  createdDate      DateTime @default(now())
+}
+
+// model UserSettings {
+//   username         String   @id
+//   isDarkTheme      Boolean  @default(true)
+//   userLanguageName String
+//   userLanguage     Language @relation(fields: [userLanguageName], references: [languageName])
+//   user             User     @relation(fields: [username], references: [username])
+// }
+
+model UserLogins {
+  userLgoin_id  Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userUseremail], references: [useremail])
+  userUseremail String
+  ipAddress     String?
+  loginDateTime DateTime @default(now())
 }
 
 model CollarTag {

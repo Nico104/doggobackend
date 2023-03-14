@@ -9,16 +9,35 @@ export class UserController {
         private readonly userService: UserService,
     ) { }
 
+    /**
+   * Creates a new User Account
+   * @param useremail for the user's email
+   * @param userpassword for the user's password
+   */
     @Post('signupUser')
     async signupUser(
-        @Body() userData: { useremail: string; userpassword: string },
+        @Body() userData: {
+            useremail: string;
+            userpassword: string;
+            verificationCode: string;
+        },
     ): Promise<UserModel> {
-        return this.userService.createUser(
-            {
-                useremail: userData.useremail,
-                userpassword: bcrypt.hashSync(userData.userpassword, 10),
-            }
-        );
+
+        //Double check so nobody can just directly send the signupUser request
+        if (this.userService.checkCode(userData.useremail, Number(userData.verificationCode))) {
+            this.userService.devalidatePendingAccount(userData.useremail);
+
+            return this.userService.createUser(
+                {
+                    useremail: userData.useremail,
+                    userpassword: bcrypt.hashSync(userData.userpassword, 10),
+                }
+            );
+        } else {
+            return null;
+        }
+
+
     }
 
     /**
@@ -31,5 +50,39 @@ export class UserController {
         @Param('useremail') useremail: string
     ): Promise<boolean> {
         return (Number(await this.userService.isUseremailAvailable(useremail)) == 0);
+    }
+
+    /**
+  * Creates a new Pending Account record
+  * @param useremail the email with which a new User tred to login
+  */
+    @Post('signupPendingAccount')
+    async signupPendingAccount(
+        @Body() userData: {
+            useremail: string;
+        },
+    ): Promise<any> {
+        console.log(userData.useremail);
+
+        var code: number = Math.floor(100000 + Math.random() * 900000);
+        console.log(code.toString())
+
+        return this.userService.createPendingAccount(userData.useremail, code);
+    }
+
+    /**
+     * Cecks if a pssed Code corresponds to the Users Pending Account
+     * @param useremail the email with which a new User tred to login
+     * @param code for the code to check
+     * @returns false if no Pending Account corresponds, otherwise a number true
+     */
+    @Post('checkCode')
+    async checkCode(
+        @Body() userData: {
+            useremail: string,
+            verificationCode: string
+        },
+    ): Promise<Boolean> {
+        return this.userService.checkCode(userData.useremail, Number(userData.verificationCode));
     }
 }
