@@ -3,6 +3,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -14,24 +15,42 @@ import { join } from 'path';
         port: 465,
         secure: true,
         auth: {
-          user: 'testpopokakamann@gmail.com',
-          pass: 'Popo$$123',
+          user: 'testemailnicoproject@gmail.com',
+          pass: 'hnclicgggnmitjal',
         },
       },
       defaults: {
         // from: '"No Reply" <testpopokakamann@gmail.com>',
-        from: '"Draft2" <testpopokakamann@gmail.com>',
+        from: '"Draft2" <testemailnicoproject@gmail.com>',
       },
       template: {
-        dir: join(__dirname, 'templates'),
+        //! Found out what problem with --dirname is
+        // dir: join(__dirname, 'templates'),
+        dir: 'src/mail/templates',
         adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
         options: {
           strict: true,
         },
       },
     }),
+    // MailerModule.forRoot({
+    //   transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+    //   // defaults: {
+    //   //   // from: '"No Reply" <testpopokakamann@gmail.com>',
+    //   //   from: '"Draft2" <testemailnicoproject@gmail.com>',
+    //   // },
+    //   template: {
+    //     //! Found out what problem with --dirname is
+    //     // dir: join(__dirname, 'templates'),
+    //     dir: 'src/mail/templates',
+    //     adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+    //     options: {
+    //       strict: true,
+    //     },
+    //   },
+    // }),
   ],
-  providers: [MailService],
+  providers: [MailService, ConfigService],
   exports: [MailService], // 👈 export for DI
 })
 export class MailModule { }

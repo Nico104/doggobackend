@@ -85,4 +85,10 @@ export class UserController {
     ): Promise<Boolean> {
         return this.userService.checkCode(userData.useremail, Number(userData.verificationCode));
     }
+
+    @Get('testsendemial')
+    public testsendemial() {
+        this.userService.testsendemial();
+
+    }
 }

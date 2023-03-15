@@ -131,4 +131,10 @@ export class UserService {
             }
         })
     }
+
+    async testsendemial(
+    ): Promise<any> {
+        // return this.mailService.sendMail();
+        return this.mailService.sendEmailConfirmationCode("nicolascarraro104@gmail.com", "333333");
+    }
 }
