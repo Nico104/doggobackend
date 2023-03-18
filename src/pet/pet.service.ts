@@ -175,6 +175,12 @@ export class PetService {
         });
     }
 
+    async createLanguage(data: Prisma.LanguageCreateInput): Promise<Language> {
+        return this.prisma.language.create({
+            data,
+        });
+    }
+
     //Tags
     async connectTagFromPetProfile(data: {
         collarTagId: string,

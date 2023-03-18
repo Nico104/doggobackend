@@ -36,8 +36,6 @@ export class UserController {
         } else {
             return null;
         }
-
-
     }
 
     /**
@@ -86,9 +84,9 @@ export class UserController {
         return this.userService.checkCode(userData.useremail, Number(userData.verificationCode));
     }
 
-    @Get('testsendemial')
-    public testsendemial() {
-        this.userService.testsendemial();
+    // @Get('testsendemial')
+    // public testsendemial() {
+    //     this.userService.testsendemial();
 
-    }
+    // }
 }

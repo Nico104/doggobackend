@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
         secure: true,
         auth: {
           user: 'testemailnicoproject@gmail.com',
-          // pass: 'hnclicgggnmitjal',
+          pass: 'hnclicgggnmitjal',
         },
       },
       defaults: {

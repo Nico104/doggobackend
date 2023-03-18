@@ -276,6 +276,29 @@ export class PetController {
         return this.petService.Language({});
     }
 
+    @Post('createLanguage')
+    async createLanguage(
+        @Body() data: {
+            language_key: string;
+            language_label: string;
+            language_image_path: string;
+            language_country: string;
+            language_country_prefix: string;
+            language_isAvailableForAppTranslation: boolean;
+        },
+    ): Promise<Language> {
+        return this.petService.createLanguage(
+            {
+                language_key: data.language_key,
+                language_country: data.language_country,
+                language_country_prefix: data.language_country_prefix,
+                language_label: data.language_label,
+                language_image_path: data.language_image_path,
+                language_isAvailableForAppTranslation: data.language_isAvailableForAppTranslation,
+            }
+        );
+    }
+
     //Tags
     @Post('connectTagFromPetProfile')
     async connectTagFromPetProfile(

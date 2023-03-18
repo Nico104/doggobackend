@@ -28,13 +28,13 @@ export class TagController {
         @Body() data: {
             activationCode: string;
             collarTag_id: string;
-            appBackgroundColorHex: string;
             primaryColorName: string;
             secondaryColorName: string;
             baseColorName: string;
             letter: string;
-            appPetTagPrimaryColor: string;
-            appPetTagSecundaryColor: string;
+            appBackgroundColorHex: string;
+            appPetTagPrimaryColorHex: string;
+            appPetTagSecundaryColorHex: string;
         },
     ): Promise<CollarTag> {
         return this.tagService.createTag(
@@ -48,8 +48,8 @@ export class TagController {
                         secondaryColorName: data.secondaryColorName,
                         baseColorName: data.baseColorName,
                         letter: data.letter,
-                        appPetTagPrimaryColor: data.appPetTagPrimaryColor,
-                        appPetTagSecundaryColor: data.appPetTagSecundaryColor,
+                        appPetTagPrimaryColor: data.appPetTagPrimaryColorHex,
+                        appPetTagSecundaryColor: data.appPetTagSecundaryColorHex,
 
                     }
                 }
