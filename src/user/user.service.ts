@@ -132,9 +132,23 @@ export class UserService {
         })
     }
 
-    async testsendemial(
-    ): Promise<any> {
-        // return this.mailService.sendMail();
-        return this.mailService.sendEmailConfirmationCode("nicolascarraro104@gmail.com", "333333");
+    /**
+   * Updates the User's Password
+   * @param userpassword for the new User password
+   * @param username for the User searched for 
+  */
+    async updateUserPassword(
+        useremail: string,
+        userpassword: string,
+    ): Promise<User> {
+        return this.prisma.user.update({
+            where: {
+                useremail: useremail
+            },
+            data: {
+                userpassword: userpassword,
+                // genPassword: false
+            }
+        })
     }
 }

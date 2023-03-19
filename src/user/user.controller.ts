@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -84,9 +85,19 @@ export class UserController {
         return this.userService.checkCode(userData.useremail, Number(userData.verificationCode));
     }
 
-    // @Get('testsendemial')
-    // public testsendemial() {
-    //     this.userService.testsendemial();
+    //Change Password
 
-    // }
+    /**
+     * Updates the User's Password
+     * @param userpassword for the new User password
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('updateUserPassword')
+    async updateUserPassword(
+        @Request() req,
+        @Body() data: {
+            userpassword: string
+        }) {
+        return this.userService.updateUserPassword(req.user.useremail, bcrypt.hashSync(data.userpassword, 10));
+    }
 }
