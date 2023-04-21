@@ -10,8 +10,11 @@ import { MailModule } from './mail/mail.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
+import { S3uploadService } from './s3upload/s3upload.service';
+import { S3uploadModule } from './s3upload/s3upload.module';
+
 @Module({
-  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule,
+  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule,
     //    MailerModule.forRoot({
     //   // transport: 'smtps://user@domain.com:pass@smtp.domain.com',
     //   transport: {
@@ -40,6 +43,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     // }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, S3uploadService],
 })
 export class AppModule { }

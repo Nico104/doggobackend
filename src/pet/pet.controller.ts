@@ -1,13 +1,93 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
 import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
+import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
+import { diskStorage } from 'multer';
+import { unlink } from 'fs';
+import { GlobalService } from 'src/utils/global.service';
+
+var directoryPath = GlobalService.rootPath + 'MediaFiles/';
+
 
 @Controller('pet')
 export class PetController {
     constructor(
         private readonly petService: PetService,
+        private readonly s3uploadService: S3uploadService,
     ) { }
+
+
+    //Picture Upload
+
+    /**
+  * Updates the User's Profile Information
+  * @param picture for the new Profile Picture file
+  * @param profileBio for the new Profile Bio
+  */
+    @UseGuards(JwtAuthGuard)
+    @Post('uploadPicture/:profile_id')
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'picture', maxCount: 1, },
+    ], {
+        storage: diskStorage({
+            destination: directoryPath + "uploads",
+        }),
+    }
+    ))
+    async uploadPicture(
+        @Request() req,
+        @UploadedFiles() files: { picture?: Express.Multer.File[] },
+        @Param('profile_id') profile_id: string
+    ): Promise<void> {
+        // var picturePath = 'uploads/default/defaultProfilePicture.png';
+        // let spacesPicturePath: string = 'profile/default/defaultProfilePicture';
+        if (files.picture != null) {
+            console.log("picture is not null");
+
+            let filename: string = files.picture[0]['filename'];
+
+            /**
+            * Processes and resized the uploaded Thumbnail File
+            */
+            var picturePath = 'uploads/profile/' + filename + '.png';
+
+
+            let bucketName: string = 'petpictures';
+            let s3PicturePath: string = 'petpictures/' + bucketName + '/' + filename;
+            await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 90);
+
+
+            /**
+            * Upload Pet Picture to Vultr
+            */
+            await this.s3uploadService.upload(directoryPath + picturePath,
+                filename, MediaType.PetPicture, bucketName);
+
+
+            this.petService.updatePet(
+                {
+                    where: {
+                        profile_id: Number(profile_id)
+                    },
+                    data: {
+                        pet_pictures: {
+                            create: {
+                                pet_picture_link: s3PicturePath,
+                                pet_picture_priority: 0,
+                            }
+                        }
+                    }
+                }
+            );
+        } else {
+            console.log("picture is null");
+        }
+
+
+    }
+
 
     //Pet
     @UseGuards(JwtAuthGuard)
@@ -326,4 +406,27 @@ export class PetController {
         });
     }
 
+}
+
+
+/**
+ * Resizes and saves image to a jpeg File
+ * @param newPath Path where converted Image should be stored
+ * @param oldPath Path of the Image which should be converted
+ * @param width Resizing to width
+ * @param height Resizing to height
+ * @param quality Level of Quality which should be converted to
+ */
+async function resizeAndSaveImageJpeg(newPath: string, oldPath: string, width: number, height: number, quality: number) {
+    const sharp = require('sharp');
+
+    console.log("PicturePath: " + newPath);
+
+    await sharp(oldPath).resize(width, height).toFormat("png").png({ quality: quality })
+        .toFile(newPath).then(() => {
+            unlink(oldPath, (err) => {
+                if (err) throw err;
+                console.log(oldPath + ' was deleted2');
+            });
+        });;
 }
