@@ -56,7 +56,9 @@ export class PetController {
 
             let bucketName: string = 'petpictures';
             let s3PicturePath: string = 'petpictures/' + bucketName + '/' + filename;
-            await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 90);
+
+
+            await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 80);
 
 
             /**
@@ -66,7 +68,7 @@ export class PetController {
                 filename, MediaType.PetPicture, bucketName);
 
 
-            this.petService.updatePet(
+            await this.petService.updatePet(
                 {
                     where: {
                         profile_id: Number(profile_id)
@@ -81,6 +83,8 @@ export class PetController {
                     }
                 }
             );
+
+            return;
         } else {
             console.log("picture is null");
         }
@@ -468,9 +472,36 @@ export class PetController {
 async function resizeAndSaveImageJpeg(newPath: string, oldPath: string, width: number, height: number, quality: number) {
     const sharp = require('sharp');
 
+    const image = await sharp(oldPath)
+    const metadata = await image.metadata()
+    console.log(metadata.width, metadata.height)
+
     console.log("PicturePath: " + newPath);
 
-    await sharp(oldPath).resize(width, height).toFormat("png").png({ quality: quality })
+    let _width: number = null;
+    let _height: number = null;
+    let _maxSize: number = 720;
+    if (metadata.width > _maxSize || metadata.height > _maxSize) {
+        if (metadata.width > metadata.height) {
+            _width = _maxSize;
+        } else if (metadata.height > metadata.width) {
+            _height = _maxSize;
+        } else if (metadata.height == metadata.width) {
+            _height = _maxSize;
+            _width = _maxSize;
+        }
+    }
+
+    console.log(_width, _height)
+
+    // await sharp(oldPath).resize(width, height).toFormat("png").png({ quality: quality })
+    //     .toFile(newPath).then(() => {
+    //         unlink(oldPath, (err) => {
+    //             if (err) throw err;
+    //             console.log(oldPath + ' was deleted2');
+    //         });
+    //     });;
+    await sharp(oldPath).resize({ width: _width, height: _height }).toFormat("png").png({ quality: quality })
         .toFile(newPath).then(() => {
             unlink(oldPath, (err) => {
                 if (err) throw err;
