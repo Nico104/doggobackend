@@ -22,10 +22,10 @@ export class PetController {
     //Picture Upload
 
     /**
-  * Updates the User's Profile Information
-  * @param picture for the new Profile Picture file
-  * @param profileBio for the new Profile Bio
-  */
+     * Updates the User's Profile Information
+     * @param picture for the new Profile Picture file
+     * @param profileBio for the new Profile Bio
+     */
     @UseGuards(JwtAuthGuard)
     @Post('uploadPicture/:profile_id')
     @UseInterceptors(FileFieldsInterceptor([
@@ -84,8 +84,56 @@ export class PetController {
         } else {
             console.log("picture is null");
         }
+    }
 
+    @UseGuards(JwtAuthGuard)
+    @Post('deletePicture')
+    async deletePicture(
+        @Request() req,
+        @Body() data: {
+            pet_picture_id: string;
+            pet_picture_link: string;
+            profile_id: string;
+        },
+    ): Promise<void> {
+        let isUserPictureOwner: Boolean = await this.petService.isUserPictureOwner({
+            pet_picture_id: Number(data.pet_picture_id),
+            useremail: req.useremail,
+        });
 
+        if (isUserPictureOwner) {
+
+            // let s3PicturePath: string = 'petpictures/' + bucketName + '/' + filename;
+            // await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 90);
+
+            var str = data.pet_picture_link;
+            let key: string = str.substring(str.indexOf("/") + 1);
+            let bucket: string = str.substring(0, str.indexOf("/"));
+            console.log("Key: " + key);
+            console.log("Bucket: " + bucket);
+
+            await this.petService.updatePet(
+                {
+                    where: {
+                        profile_id: Number(data.profile_id)
+                    },
+                    data: {
+                        pet_pictures: {
+                            delete: {
+                                pet_picture_id: Number(data.pet_picture_id),
+                            }
+                        }
+                    }
+                }
+            );
+
+            /**
+            * Delete Pet Picture from Vultr
+            */
+            await this.s3uploadService.delete(key, bucket);
+        } else {
+            console.log("picture is null");
+        }
     }
 
 

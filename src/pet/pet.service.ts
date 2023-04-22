@@ -117,6 +117,25 @@ export class PetService {
         }) != 0;
     }
 
+    async isUserPictureOwner(params: { pet_picture_id: number; useremail: string; }): Promise<Boolean> {
+        return await this.prisma.petPicture.count({
+            where: {
+                AND: [
+                    {
+                        pet_picture_id: params.pet_picture_id,
+                    },
+                    {
+                        Pet: {
+                            pet_profile_user: {
+                                useremail: params.useremail,
+                            }
+                        }
+                    },
+                ]
+            }
+        }) != 0;
+    }
+
     //Description
     async upsertDescription(params: {
         create: Prisma.DescriptionCreateInput;
