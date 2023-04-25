@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -136,6 +136,25 @@ export class PetService {
         }) != 0;
     }
 
+    async isUserDocumentOwner(params: { document_id: number; useremail: string; }): Promise<Boolean> {
+        return await this.prisma.document.count({
+            where: {
+                AND: [
+                    {
+                        document_id: params.document_id,
+                    },
+                    {
+                        Pet: {
+                            pet_profile_user: {
+                                useremail: params.useremail,
+                            }
+                        }
+                    },
+                ]
+            }
+        }) != 0;
+    }
+
     //Description
     async upsertDescription(params: {
         create: Prisma.DescriptionCreateInput;
@@ -246,6 +265,36 @@ export class PetService {
                 return Gender.FEMALE;
             default:
                 return Gender.NONE;
+        }
+    }
+
+    stringToDocumentType(document_type: string): DocumentTypeEnum {
+        switch (document_type.toLowerCase()) {
+            case "allergies":
+                return DocumentTypeEnum.Allergies;
+            case "dewormers":
+                return DocumentTypeEnum.Dewormers;
+            case "health":
+                return DocumentTypeEnum.Health;
+            case "medicine":
+                return DocumentTypeEnum.Medicine;
+            default:
+                return DocumentTypeEnum.Noid;
+        }
+    }
+
+    documentTypeToString(document_type: DocumentTypeEnum): string {
+        switch (document_type) {
+            case DocumentTypeEnum.Allergies:
+                return "allergies";
+            case DocumentTypeEnum.Dewormers:
+                return "dewormers";
+            case DocumentTypeEnum.Health:
+                return "health";
+            case DocumentTypeEnum.Medicine:
+                return "medicine";
+            default:
+                return "noid";
         }
     }
 }

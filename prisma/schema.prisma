@@ -19,6 +19,14 @@ enum LetterStyle {
   April3
 }
 
+enum DocumentType {
+  Allergies
+  Dewormers
+  Health
+  Medicine
+  Noid
+}
+
 model Language {
   language_key                          String                 @id @unique
   language_label                        String
@@ -145,11 +153,12 @@ model PhoneNumber {
 }
 
 model Document {
-  document_id   Int    @id @default(autoincrement())
-  Pet           Pet    @relation(fields: [petProfile_id], references: [profile_id])
+  document_id   Int          @id @default(autoincrement())
+  Pet           Pet          @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id Int
   document_name String
   document_link String
+  document_type DocumentType
 }
 
 model PetPicture {

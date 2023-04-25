@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -55,7 +55,7 @@ export class PetController {
 
 
             let bucketName: string = 'petpictures';
-            let s3PicturePath: string = 'petpictures/' + bucketName + '/' + filename;
+            let s3PicturePath: string = bucketName + '/' + 'petpictures/' + filename;
 
 
             await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 80);
@@ -65,7 +65,7 @@ export class PetController {
             * Upload Pet Picture to Vultr
             */
             await this.s3uploadService.upload(directoryPath + picturePath,
-                filename, MediaType.PetPicture, bucketName);
+                filename, MediaType.Image, bucketName);
 
 
             await this.petService.updatePet(
@@ -125,6 +125,133 @@ export class PetController {
                         pet_pictures: {
                             delete: {
                                 pet_picture_id: Number(data.pet_picture_id),
+                            }
+                        }
+                    }
+                }
+            );
+
+            /**
+            * Delete Pet Picture from Vultr
+            */
+            await this.s3uploadService.delete(key, bucket);
+        } else {
+            console.log("picture is null");
+        }
+    }
+
+
+    //Picture Upload
+
+    /**
+     * Updates the User's Profile Information
+     * @param picture for the new Profile Picture file
+     * @param profileBio for the new Profile Bio
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('uploadDocument/:profile_id')
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'document', maxCount: 1, },
+    ], {
+        storage: diskStorage({
+            destination: directoryPath + "uploads",
+        }),
+    }
+    ))
+    async uploadDocument(
+        @Request() req,
+        @UploadedFiles() files: { document?: Express.Multer.File[] },
+        @Param('profile_id') profile_id: string,
+        @Body() data: {
+            document_name: string;
+            document_type: string;
+            content_type: string;
+        },
+    ): Promise<void> {
+        if (files.document != null) {
+            console.log("document is not null");
+
+            let filename: string = files.document[0]['filename'];
+
+            let document_type: DocumentTypeEnum = this.petService.stringToDocumentType(data.document_type);
+
+            let bucketName: string = 'petdocuments';
+            let s3PicturePath: string = bucketName + '/' + this.petService.documentTypeToString(document_type) + '/' + filename;
+
+
+
+            /**
+            * Upload Pet Doucment to Vultr
+            */
+            if (data.content_type == 'pdf' || 'image') {
+                let content_type: MediaType = MediaType.Image;
+                if (data.content_type == 'pdf') {
+                    content_type = MediaType.PDF;
+                }
+                await this.s3uploadService.upload(files.document[0]['path'],
+                    filename, content_type, bucketName);
+
+
+                await this.petService.updatePet(
+                    {
+                        where: {
+                            profile_id: Number(profile_id)
+                        },
+                        data: {
+                            pet_documents: {
+                                create: {
+                                    document_link: s3PicturePath,
+                                    document_name: data.document_name,
+                                    document_type: document_type,
+                                }
+                            }
+                        }
+                    }
+                );
+            }
+            return;
+        } else {
+            console.log("document is null");
+        }
+    }
+
+
+
+    @UseGuards(JwtAuthGuard)
+    @Post('deleteDocument')
+    async deleteDocument(
+        @Request() req,
+        @Body() data: {
+            pet_document_id: string;
+            pet_document_link: string;
+            profile_id: string;
+        },
+    ): Promise<void> {
+        let isUserDocumentOwner: Boolean = await this.petService.isUserDocumentOwner({
+            document_id: Number(data.pet_document_id),
+            useremail: req.useremail,
+        });
+
+        if (isUserDocumentOwner) {
+
+            // let s3PicturePath: string = 'petpictures/' + bucketName + '/' + filename;
+            // await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 90);
+
+            var str = data.pet_document_link;
+            let key: string = str.substring(str.indexOf("/") + 1);
+            let bucket: string = str.substring(0, str.indexOf("/"));
+            console.log("Key: " + key);
+            console.log("Bucket: " + bucket);
+
+            await this.petService.updatePet(
+                {
+                    where: {
+                        profile_id: Number(data.profile_id)
+                    },
+                    data: {
+                        pet_documents: {
+                            delete: {
+                                document_id: Number(data.pet_document_id),
                             }
                         }
                     }

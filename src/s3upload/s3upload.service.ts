@@ -7,7 +7,8 @@ import { S3 } from 'aws-sdk';
 import { Console } from 'console';
 
 export enum MediaType {
-    PetPicture,
+    Image,
+    PDF,
 }
 
 @Injectable()
@@ -17,6 +18,9 @@ export class S3uploadService {
         //get right configuration
         let key: string = 'petpictures/' + filename;
         let contentType: string = 'image';
+        if (type == MediaType.PDF) {
+            contentType = 'pdf';
+        }
 
         //Check if picture
 
