@@ -13,10 +13,10 @@ export enum MediaType {
 
 @Injectable()
 export class S3uploadService {
-    async upload(filepath: string, filename: string, type: MediaType, bucket: string) {
+    async upload(filepath: string, filename: string, type: MediaType, keyPath: string, bucket: string) {
 
         //get right configuration
-        let key: string = 'petpictures/' + filename;
+        let key: string = keyPath + filename;
         let contentType: string = 'image';
         if (type == MediaType.PDF) {
             contentType = 'pdf';

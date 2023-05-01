@@ -65,7 +65,7 @@ export class PetController {
             * Upload Pet Picture to Vultr
             */
             await this.s3uploadService.upload(directoryPath + picturePath,
-                filename, MediaType.Image, bucketName);
+                filename, MediaType.Image, 'petpictures/', bucketName);
 
 
             await this.petService.updatePet(
@@ -189,7 +189,7 @@ export class PetController {
                     content_type = MediaType.PDF;
                 }
                 await this.s3uploadService.upload(files.document[0]['path'],
-                    filename, content_type, bucketName);
+                    filename, content_type, this.petService.documentTypeToString(document_type) + '/', bucketName);
 
 
                 await this.petService.updatePet(
@@ -263,7 +263,7 @@ export class PetController {
             */
             await this.s3uploadService.delete(key, bucket);
         } else {
-            console.log("picture is null");
+            console.log("deletable document is null");
         }
     }
 
