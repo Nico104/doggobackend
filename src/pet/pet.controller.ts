@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -51,7 +51,7 @@ export class PetController {
             /**
             * Processes and resized the uploaded Thumbnail File
             */
-            var picturePath = 'uploads/profile/' + filename + '.png';
+            var picturePath = 'uploads/' + filename + '.png';
 
 
             let bucketName: string = 'petpictures';
@@ -321,7 +321,7 @@ export class PetController {
                 pet_owner_living_place: data.pet_owner_living_place,
                 pet_owner_facebook: data.pet_owner_facebook,
                 pet_owner_instagram: data.pet_owner_instagram,
-                pet_is_Lost: data.pet_is_Lost,
+                pet_is_Lost: Boolean(data.pet_is_Lost),
             }
         );
     }
@@ -383,6 +383,93 @@ export class PetController {
             return this.petService.deletePet(
                 {
                     profile_id: data.profile_id
+                },
+            );
+        }
+
+    }
+
+    //Phone Number
+    @UseGuards(JwtAuthGuard)
+    @Post('updatePhoneNumber')
+    async updatePhoneNumber(
+        @Request() req: any,
+        @Body() data: {
+            petProfile_id: number;
+            language_key: string;
+            phone_number: string;
+            phone_number_id: number;
+            phone_number_priority: number;
+        },
+    ): Promise<PhoneNumber> {
+        if (await this.petService.isUserPhoneNumberOwner({
+            useremail: req.user.useremail,
+            phone_number_id: data.phone_number_id,
+        }) || data.phone_number_id == null) {
+            return this.petService.updatePhoneNumber(
+                {
+                    data: {
+                        phone_number: data.phone_number,
+                        phone_number_Language: {
+                            connect: {
+                                language_key: data.language_key
+                            }
+                        },
+                        phone_number_priority: data.phone_number_priority
+                    },
+                    where: {
+                        phone_number_id: data.phone_number_id
+                    },
+                }
+            );
+        }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('createPhoneNumber')
+    async createPhoneNumber(
+        @Request() req: any,
+        @Body() data: {
+            petProfile_id: number;
+            language_key: string;
+            phone_number: string;
+        },
+    ): Promise<PhoneNumber> {
+        return this.petService.createPhoneNumber(
+            {
+                phone_number_Language: {
+                    connect: {
+                        language_key: data.language_key
+                    }
+                },
+                Pet: {
+                    connect: {
+                        profile_id: data.petProfile_id
+                    }
+                },
+                phone_number: data.phone_number,
+            }
+        );
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Delete('deletePhoneNumber')
+    async deletePhoneNumber(
+        @Request() req: any,
+        //? possible to put in params
+        @Body() data: {
+            phone_number_id: string;
+        },
+    ): Promise<PhoneNumber> {
+        console.log("Phone Number ID: " + data.phone_number_id);
+        if (await this.petService.isUserPhoneNumberOwner({
+            useremail: req.user.useremail,
+            phone_number_id: Number(data.phone_number_id),
+        })) {
+            return this.petService.deletePhoneNumber(
+                {
+                    phone_number_id: Number(data.phone_number_id),
                 },
             );
         }

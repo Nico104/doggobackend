@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -117,6 +117,31 @@ export class PetService {
         }) != 0;
     }
 
+    async isUserPhoneNumberOwner(params: { phone_number_id?: number; useremail: string; }): Promise<Boolean> {
+        if (params.phone_number_id == null) {
+            return false;
+        } else {
+            return await this.prisma.phoneNumber.count({
+                where: {
+                    AND: [
+                        {
+                            phone_number_id: params.phone_number_id
+                        },
+                        {
+
+                            Pet: {
+                                pet_profile_user: {
+                                    useremail: params.useremail
+                                }
+                            }
+                        }
+                    ]
+                }
+            }) != 0;
+        }
+
+    }
+
     async isUserPictureOwner(params: { pet_picture_id: number; useremail: string; }): Promise<Boolean> {
         return await this.prisma.petPicture.count({
             where: {
@@ -154,6 +179,37 @@ export class PetService {
             }
         }) != 0;
     }
+
+    //Phone Number
+    async updatePhoneNumber(params: {
+        data: Prisma.PhoneNumberUpdateInput;
+        where: Prisma.PhoneNumberWhereUniqueInput;
+    }): Promise<PhoneNumber> {
+        const { data, where } = params;
+        return this.prisma.phoneNumber.update({
+            where,
+            data,
+            include: {
+                phone_number_Language: true,
+            }
+        });
+    }
+
+    async createPhoneNumber(data: Prisma.PhoneNumberCreateInput): Promise<PhoneNumber> {
+        return this.prisma.phoneNumber.create({
+            data,
+            include: {
+                phone_number_Language: true,
+            }
+        });
+    }
+
+    async deletePhoneNumber(where: Prisma.PhoneNumberWhereUniqueInput): Promise<PhoneNumber> {
+        return this.prisma.phoneNumber.delete({
+            where,
+        });
+    }
+
 
     //Description
     async upsertDescription(params: {
@@ -257,7 +313,10 @@ export class PetService {
     }
 
 
-    parseGenderFromString(gender: string): Gender {
+    parseGenderFromString(gender?: string): Gender {
+        if (gender == null) {
+            return null;
+        }
         switch (gender.toUpperCase()) {
             case "MALE":
                 return Gender.MALE;

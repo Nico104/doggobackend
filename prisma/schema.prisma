@@ -142,14 +142,15 @@ model ImportantInformation {
 }
 
 model PhoneNumber {
+  phone_number_id       Int      @id @default(autoincrement())
   Pet                   Pet?     @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id         Int
   phone_number          String
-  phone_number_priority Int
+  phone_number_priority Int      @default(0)
   phone_number_Language Language @relation(fields: [languageLanguage_key], references: [language_key])
   languageLanguage_key  String   @default("en")
 
-  @@id([petProfile_id, phone_number])
+  // @@id([petProfile_id, phone_number])
 }
 
 model Document {
