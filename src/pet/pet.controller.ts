@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber } from '@prisma/client';
+import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -396,7 +396,7 @@ export class PetController {
         @Request() req: any,
         @Body() data: {
             petProfile_id: number;
-            language_key: string;
+            country_key: string;
             phone_number: string;
             phone_number_id: number;
             phone_number_priority: number;
@@ -410,9 +410,9 @@ export class PetController {
                 {
                     data: {
                         phone_number: data.phone_number,
-                        phone_number_Language: {
+                        Country: {
                             connect: {
-                                language_key: data.language_key
+                                country_key: data.country_key
                             }
                         },
                         phone_number_priority: data.phone_number_priority
@@ -431,15 +431,15 @@ export class PetController {
         @Request() req: any,
         @Body() data: {
             petProfile_id: number;
-            language_key: string;
+            country_key: string;
             phone_number: string;
         },
     ): Promise<PhoneNumber> {
         return this.petService.createPhoneNumber(
             {
-                phone_number_Language: {
+                Country: {
                     connect: {
-                        language_key: data.language_key
+                        country_key: data.country_key
                     }
                 },
                 Pet: {
@@ -627,20 +627,46 @@ export class PetController {
         @Body() data: {
             language_key: string;
             language_label: string;
-            language_image_path: string;
-            language_country: string;
-            language_country_prefix: string;
+            // language_image_path: string;
+            // language_country: string;
+            // language_country_prefix: string;
             language_isAvailableForAppTranslation: boolean;
         },
     ): Promise<Language> {
         return this.petService.createLanguage(
             {
                 language_key: data.language_key,
-                language_country: data.language_country,
-                language_country_prefix: data.language_country_prefix,
                 language_label: data.language_label,
-                language_image_path: data.language_image_path,
                 language_isAvailableForAppTranslation: data.language_isAvailableForAppTranslation,
+            }
+        );
+    }
+
+    //Language
+    @Get('getCountries')
+    async getCountries(): Promise<Country[]> {
+        return this.petService.Country({});
+    }
+
+    @Post('createCountry')
+    async createCountry(
+        @Body() data: {
+            country_key: string;
+            country_language_key: string;
+            country_flag_image_path: string;
+            country_phone_prefix: string;
+        },
+    ): Promise<Country> {
+        return this.petService.createCountry(
+            {
+                country_flag_image_path: data.country_flag_image_path,
+                country_key: data.country_key,
+                country_phone_prefix: data.country_phone_prefix,
+                country_language: {
+                    connect: {
+                        language_key: data.country_language_key
+                    }
+                }
             }
         );
     }

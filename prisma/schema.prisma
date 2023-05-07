@@ -27,16 +27,22 @@ enum DocumentType {
   Noid
 }
 
+model Country {
+  country_key             String        @id @unique
+  country_flag_image_path String
+  country_phone_prefix    String
+  country_language        Language      @relation(fields: [language_key], references: [language_key])
+  language_key            String
+  PhoneNumber             PhoneNumber[]
+}
+
 model Language {
   language_key                          String                 @id @unique
   language_label                        String
-  language_image_path                   String
-  language_country                      String
-  language_country_prefix               String
   language_isAvailableForAppTranslation Boolean                @default(false)
   Description                           Description[]
   ImportantInformation                  ImportantInformation[]
-  PhoneNumber                           PhoneNumber[]
+  Country                               Country[]
 }
 
 model User {
@@ -142,15 +148,15 @@ model ImportantInformation {
 }
 
 model PhoneNumber {
-  phone_number_id       Int      @id @default(autoincrement())
-  Pet                   Pet?     @relation(fields: [petProfile_id], references: [profile_id])
+  phone_number_id       Int    @id @default(autoincrement())
+  Pet                   Pet?   @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id         Int
   phone_number          String
-  phone_number_priority Int      @default(0)
-  phone_number_Language Language @relation(fields: [languageLanguage_key], references: [language_key])
-  languageLanguage_key  String   @default("en")
+  phone_number_priority Int    @default(0)
 
   // @@id([petProfile_id, phone_number])
+  Country             Country? @relation(fields: [countryLanguage_key], references: [country_key])
+  countryLanguage_key String?
 }
 
 model Document {

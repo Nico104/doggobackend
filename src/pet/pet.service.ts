@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -23,7 +23,6 @@ export class PetService {
                     }
                 },
                 pet_documents: true,
-                pet_owner_telephone_numbers: true,
                 pet_pictures: true,
                 Tag: {
                     include: {
@@ -31,6 +30,15 @@ export class PetService {
                     }
                 },
                 pet_profile_scans: true,
+                pet_owner_telephone_numbers: {
+                    include: {
+                        Country: {
+                            include: {
+                                country_language: true
+                            }
+                        }
+                    }
+                },
             }
         });
     }
@@ -63,7 +71,11 @@ export class PetService {
                 pet_documents: true,
                 pet_owner_telephone_numbers: {
                     include: {
-                        phone_number_Language: true
+                        Country: {
+                            include: {
+                                country_language: true
+                            }
+                        }
                     }
                 },
                 pet_pictures: true,
@@ -190,7 +202,11 @@ export class PetService {
             where,
             data,
             include: {
-                phone_number_Language: true,
+                Country: {
+                    include: {
+                        country_language: true
+                    }
+                }
             }
         });
     }
@@ -199,7 +215,11 @@ export class PetService {
         return this.prisma.phoneNumber.create({
             data,
             include: {
-                phone_number_Language: true,
+                Country: {
+                    include: {
+                        country_language: true
+                    }
+                }
             }
         });
     }
@@ -271,6 +291,33 @@ export class PetService {
 
     async createLanguage(data: Prisma.LanguageCreateInput): Promise<Language> {
         return this.prisma.language.create({
+            data,
+        });
+    }
+
+    //Country
+    async Country(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.CountryWhereUniqueInput;
+        where?: Prisma.CountryWhereInput;
+        orderBy?: Prisma.CountryOrderByWithRelationInput;
+    }): Promise<Country[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.country.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+            include: {
+                country_language: true
+            }
+        });
+    }
+
+    async createCountry(data: Prisma.CountryCreateInput): Promise<Country> {
+        return this.prisma.country.create({
             data,
         });
     }
