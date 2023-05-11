@@ -20,9 +20,6 @@ export class TagService {
             cursor,
             where,
             orderBy,
-            include: {
-                CollarTagPersonalisation: true
-            }
         });
     }
 
@@ -49,14 +46,16 @@ export class TagService {
                         connect: {
                             useremail: params.useremail
                         }
-                    }
+                    },
+                    assignedDate: new Date(),
                 }
             });
         } else {
             return null;
         }
-
     }
+
+
 
 
     ///Returns true if Tag can be assigned, false if tag does not exist or is already assigned
@@ -97,4 +96,17 @@ export class TagService {
         });
 
     }
+
+    //!Administration Function
+    async checkTagIdAvailable(params: {
+        tagId: string
+    }): Promise<Boolean> {
+        return await this.prisma.collarTag.count({
+            where: {
+                collarTag_id: params.tagId
+            },
+        }) == 0;
+    }
+
+    //! Check that activitionCode isnt double
 }

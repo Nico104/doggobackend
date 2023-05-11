@@ -24,11 +24,7 @@ export class PetService {
                 },
                 pet_documents: true,
                 pet_pictures: true,
-                Tag: {
-                    include: {
-                        CollarTagPersonalisation: true
-                    }
-                },
+                Tag: true,
                 pet_profile_scans: true,
                 pet_owner_telephone_numbers: {
                     include: {
@@ -79,11 +75,7 @@ export class PetService {
                     }
                 },
                 pet_pictures: true,
-                Tag: {
-                    include: {
-                        CollarTagPersonalisation: true
-                    }
-                },
+                Tag: true,
                 pet_profile_scans: true,
             }
         });
@@ -337,7 +329,7 @@ export class PetService {
                         collarTag_id: data.collarTagId
                     }
                 }
-            }
+            },
         });
     }
 

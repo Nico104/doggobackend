@@ -80,29 +80,32 @@ model UserLogins {
 }
 
 model CollarTag {
-  collarTag_id             String                    @id @unique
-  assigned_pet             Pet?                      @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id            Int?
-  assigned_user            User?                     @relation(fields: [assignedUseremail], references: [useremail])
-  assignedUseremail        String?
-  activationCode           String                    @unique
-  CollarTagPersonalisation CollarTagPersonalisation?
+  collarTag_id      String    @id @unique
+  assigned_pet      Pet?      @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id     Int?
+  assigned_user     User?     @relation(fields: [assignedUseremail], references: [useremail])
+  assignedUseremail String?
+  assignedDate      DateTime?
+  activationCode    String    @unique
+  // CollarTagPersonalisation CollarTagPersonalisation?
+  picturePath       String
+  createdDate       DateTime  @default(now())
 }
 
-model CollarTagPersonalisation {
-  collarTagPersonalisationId Int          @id @default(autoincrement())
-  collarTag                  CollarTag    @relation(fields: [collarTag_id], references: [collarTag_id])
-  collarTag_id               String       @unique
-  primaryColorName           String
-  secondaryColorName         String
-  baseColorName              String
-  letter                     String?
-  letterStyle                LetterStyle?
+// model CollarTagPersonalisation {
+//   collarTagPersonalisationId Int          @id @default(autoincrement())
+//   collarTag                  CollarTag    @relation(fields: [collarTag_id], references: [collarTag_id])
+//   collarTag_id               String       @unique
+//   primaryColorName           String
+//   secondaryColorName         String
+//   baseColorName              String
+//   letter                     String?
+//   letterStyle                LetterStyle?
 
-  appBackgroundColorHex   String
-  appPetTagPrimaryColor   String
-  appPetTagSecundaryColor String
-}
+//   appBackgroundColorHex   String
+//   appPetTagPrimaryColor   String
+//   appPetTagSecundaryColor String
+// }
 
 model Pet {
   profile_id                  Int                    @id @default(autoincrement())

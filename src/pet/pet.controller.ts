@@ -278,6 +278,9 @@ export class PetController {
                 where: {
                     pet_profile_username: req.user.useremail
                 },
+                orderBy: {
+                    profile_creation_DateTime: 'desc'
+                }
             }
         );
     }
