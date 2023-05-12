@@ -179,10 +179,14 @@ model PetPicture {
   pet_picture_priority Int
 }
 
+// https://ipgeolocation.io/ip-location/78.104.182.197
 model Scan {
   scan_id         Int      @id @default(autoincrement())
   Pet             Pet      @relation(fields: [petProfile_id], references: [profile_id])
   petProfile_id   Int
   scan_DateTime   DateTime @default(now())
   scan_ip_address String
+  scan_city       String
+  scan_country    String
+  //evtl device info
 }
