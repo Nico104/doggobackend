@@ -187,6 +187,7 @@ export class PetController {
                 let content_type: MediaType = MediaType.Image;
                 if (data.content_type == 'pdf') {
                     content_type = MediaType.PDF;
+                    // s3PicturePath += ".pdf";
                 }
                 await this.s3uploadService.upload(files.document[0]['path'],
                     filename, content_type, this.petService.documentTypeToString(document_type) + '/', bucketName);
@@ -301,11 +302,11 @@ export class PetController {
             pet_name: string;
             pet_gender?: string;
             pet_chip_id?: string | null;
-            pet_owner_name?: string | null;
-            pet_owner_email?: string | null;
-            pet_owner_living_place?: string | null;
-            pet_owner_facebook?: string | null;
-            pet_owner_instagram?: string | null;
+            // pet_owner_name?: string | null;
+            // pet_owner_email?: string | null;
+            // pet_owner_living_place?: string | null;
+            // pet_owner_facebook?: string | null;
+            // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
         },
     ): Promise<PetModel> {
@@ -319,11 +320,11 @@ export class PetController {
                 pet_name: data.pet_name,
                 pet_gender: this.petService.parseGenderFromString(data.pet_gender),
                 pet_chip_id: data.pet_chip_id,
-                pet_owner_name: data.pet_owner_name,
-                pet_owner_email: data.pet_owner_email,
-                pet_owner_living_place: data.pet_owner_living_place,
-                pet_owner_facebook: data.pet_owner_facebook,
-                pet_owner_instagram: data.pet_owner_instagram,
+                // pet_owner_name: data.pet_owner_name,
+                // pet_owner_email: data.pet_owner_email,
+                // pet_owner_living_place: data.pet_owner_living_place,
+                // pet_owner_facebook: data.pet_owner_facebook,
+                // pet_owner_instagram: data.pet_owner_instagram,
                 pet_is_Lost: Boolean(data.pet_is_Lost),
             }
         );
@@ -338,11 +339,11 @@ export class PetController {
             pet_name: string;
             pet_gender?: string;
             pet_chip_id?: string | null;
-            pet_owner_name?: string | null;
-            pet_owner_email?: string | null;
-            pet_owner_living_place?: string | null;
-            pet_owner_facebook?: string | null;
-            pet_owner_instagram?: string | null;
+            // pet_owner_name?: string | null;
+            // pet_owner_email?: string | null;
+            // pet_owner_living_place?: string | null;
+            // pet_owner_facebook?: string | null;
+            // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
         },
     ): Promise<PetModel> {
@@ -356,11 +357,11 @@ export class PetController {
                         pet_name: data.pet_name,
                         pet_gender: this.petService.parseGenderFromString(data.pet_gender),
                         pet_chip_id: data.pet_chip_id,
-                        pet_owner_name: data.pet_owner_name,
-                        pet_owner_email: data.pet_owner_email,
-                        pet_owner_living_place: data.pet_owner_living_place,
-                        pet_owner_facebook: data.pet_owner_facebook,
-                        pet_owner_instagram: data.pet_owner_instagram,
+                        // pet_owner_name: data.pet_owner_name,
+                        // pet_owner_email: data.pet_owner_email,
+                        // pet_owner_living_place: data.pet_owner_living_place,
+                        // pet_owner_facebook: data.pet_owner_facebook,
+                        // pet_owner_instagram: data.pet_owner_instagram,
                         pet_is_Lost: data.pet_is_Lost,
                     },
                     where: {
@@ -386,93 +387,6 @@ export class PetController {
             return this.petService.deletePet(
                 {
                     profile_id: data.profile_id
-                },
-            );
-        }
-
-    }
-
-    //Phone Number
-    @UseGuards(JwtAuthGuard)
-    @Post('updatePhoneNumber')
-    async updatePhoneNumber(
-        @Request() req: any,
-        @Body() data: {
-            petProfile_id: number;
-            country_key: string;
-            phone_number: string;
-            phone_number_id: number;
-            phone_number_priority: number;
-        },
-    ): Promise<PhoneNumber> {
-        if (await this.petService.isUserPhoneNumberOwner({
-            useremail: req.user.useremail,
-            phone_number_id: data.phone_number_id,
-        }) || data.phone_number_id == null) {
-            return this.petService.updatePhoneNumber(
-                {
-                    data: {
-                        phone_number: data.phone_number,
-                        Country: {
-                            connect: {
-                                country_key: data.country_key
-                            }
-                        },
-                        phone_number_priority: data.phone_number_priority
-                    },
-                    where: {
-                        phone_number_id: data.phone_number_id
-                    },
-                }
-            );
-        }
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Post('createPhoneNumber')
-    async createPhoneNumber(
-        @Request() req: any,
-        @Body() data: {
-            petProfile_id: number;
-            country_key: string;
-            phone_number: string;
-        },
-    ): Promise<PhoneNumber> {
-        return this.petService.createPhoneNumber(
-            {
-                Country: {
-                    connect: {
-                        country_key: data.country_key
-                    }
-                },
-                Pet: {
-                    connect: {
-                        profile_id: data.petProfile_id
-                    }
-                },
-                phone_number: data.phone_number,
-            }
-        );
-    }
-
-
-    @UseGuards(JwtAuthGuard)
-    @Delete('deletePhoneNumber')
-    async deletePhoneNumber(
-        @Request() req: any,
-        //? possible to put in params
-        @Body() data: {
-            phone_number_id: string;
-        },
-    ): Promise<PhoneNumber> {
-        console.log("Phone Number ID: " + data.phone_number_id);
-        if (await this.petService.isUserPhoneNumberOwner({
-            useremail: req.user.useremail,
-            phone_number_id: Number(data.phone_number_id),
-        })) {
-            return this.petService.deletePhoneNumber(
-                {
-                    phone_number_id: Number(data.phone_number_id),
                 },
             );
         }

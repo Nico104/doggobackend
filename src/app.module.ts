@@ -13,9 +13,12 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { S3uploadService } from './s3upload/s3upload.service';
 import { S3uploadModule } from './s3upload/s3upload.module';
 import { ScanModule } from './scan/scan.module';
+import { ContactController } from './contact/contact.controller';
+import { ContactService } from './contact/contact.service';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
-  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule,
+  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule,
     //    MailerModule.forRoot({
     //   // transport: 'smtps://user@domain.com:pass@smtp.domain.com',
     //   transport: {

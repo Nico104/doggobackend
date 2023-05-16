@@ -26,15 +26,19 @@ export class PetService {
                 pet_pictures: true,
                 Tag: true,
                 pet_profile_scans: true,
-                pet_owner_telephone_numbers: {
+                Contact: {
                     include: {
-                        Country: {
+                        contact_telephone_numbers: {
                             include: {
-                                country_language: true
+                                Country: {
+                                    include: {
+                                        country_language: true
+                                    }
+                                }
                             }
-                        }
+                        },
                     }
-                },
+                }
             }
         });
     }
@@ -65,13 +69,17 @@ export class PetService {
                     }
                 },
                 pet_documents: true,
-                pet_owner_telephone_numbers: {
+                Contact: {
                     include: {
-                        Country: {
+                        contact_telephone_numbers: {
                             include: {
-                                country_language: true
+                                Country: {
+                                    include: {
+                                        country_language: true
+                                    }
+                                }
                             }
-                        }
+                        },
                     }
                 },
                 pet_pictures: true,
@@ -121,30 +129,30 @@ export class PetService {
         }) != 0;
     }
 
-    async isUserPhoneNumberOwner(params: { phone_number_id?: number; useremail: string; }): Promise<Boolean> {
-        if (params.phone_number_id == null) {
-            return false;
-        } else {
-            return await this.prisma.phoneNumber.count({
-                where: {
-                    AND: [
-                        {
-                            phone_number_id: params.phone_number_id
-                        },
-                        {
+    // async isUserPhoneNumberOwner(params: { phone_number_id?: number; useremail: string; }): Promise<Boolean> {
+    //     if (params.phone_number_id == null) {
+    //         return false;
+    //     } else {
+    //         return await this.prisma.phoneNumber.count({
+    //             where: {
+    //                 AND: [
+    //                     {
+    //                         phone_number_id: params.phone_number_id
+    //                     },
+    //                     {
 
-                            Pet: {
-                                pet_profile_user: {
-                                    useremail: params.useremail
-                                }
-                            }
-                        }
-                    ]
-                }
-            }) != 0;
-        }
+    //                         Pet: {
+    //                             pet_profile_user: {
+    //                                 useremail: params.useremail
+    //                             }
+    //                         }
+    //                     }
+    //                 ]
+    //             }
+    //         }) != 0;
+    //     }
 
-    }
+    // }
 
     async isUserPictureOwner(params: { pet_picture_id: number; useremail: string; }): Promise<Boolean> {
         return await this.prisma.petPicture.count({
@@ -184,43 +192,7 @@ export class PetService {
         }) != 0;
     }
 
-    //Phone Number
-    async updatePhoneNumber(params: {
-        data: Prisma.PhoneNumberUpdateInput;
-        where: Prisma.PhoneNumberWhereUniqueInput;
-    }): Promise<PhoneNumber> {
-        const { data, where } = params;
-        return this.prisma.phoneNumber.update({
-            where,
-            data,
-            include: {
-                Country: {
-                    include: {
-                        country_language: true
-                    }
-                }
-            }
-        });
-    }
 
-    async createPhoneNumber(data: Prisma.PhoneNumberCreateInput): Promise<PhoneNumber> {
-        return this.prisma.phoneNumber.create({
-            data,
-            include: {
-                Country: {
-                    include: {
-                        country_language: true
-                    }
-                }
-            }
-        });
-    }
-
-    async deletePhoneNumber(where: Prisma.PhoneNumberWhereUniqueInput): Promise<PhoneNumber> {
-        return this.prisma.phoneNumber.delete({
-            where,
-        });
-    }
 
 
     //Description

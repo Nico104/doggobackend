@@ -19,8 +19,10 @@ export class S3uploadService {
         let key: string = keyPath + filename;
         let contentType: string = 'image';
         if (type == MediaType.PDF) {
-            contentType = 'pdf';
+            contentType = 'application/pdf';
         }
+
+        console.log("Content Type: " + contentType);
 
         //Check if picture
 

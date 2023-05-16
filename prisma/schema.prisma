@@ -108,26 +108,36 @@ model CollarTag {
 // }
 
 model Pet {
-  profile_id                  Int                    @id @default(autoincrement())
-  profile_creation_DateTime   DateTime               @default(now())
-  pet_profile_user            User                   @relation(fields: [pet_profile_username], references: [useremail])
-  pet_profile_username        String
-  pet_name                    String
-  pet_gender                  Gender?
-  pet_chip_id                 String?
-  pet_description             Description[]
-  pet_important_information   ImportantInformation[]
-  pet_owner_name              String?
-  pet_owner_telephone_numbers PhoneNumber[]
-  pet_owner_email             String?
-  pet_owner_living_place      String?
-  pet_owner_facebook          String?
-  pet_owner_instagram         String?
-  pet_documents               Document[]
-  pet_pictures                PetPicture[]
-  pet_is_Lost                 Boolean
-  pet_profile_scans           Scan[]
-  Tag                         CollarTag[]
+  profile_id                Int                    @id @default(autoincrement())
+  profile_creation_DateTime DateTime               @default(now())
+  pet_profile_user          User                   @relation(fields: [pet_profile_username], references: [useremail])
+  pet_profile_username      String
+  pet_name                  String
+  pet_gender                Gender?
+  pet_chip_id               String?
+  pet_description           Description[]
+  pet_important_information ImportantInformation[]
+  pet_documents             Document[]
+  pet_pictures              PetPicture[]
+  pet_is_Lost               Boolean
+  pet_profile_scans         Scan[]
+  Tag                       CollarTag[]
+  Contact                   Contact[]
+}
+
+model Contact {
+  contact_id                Int           @id @default(autoincrement())
+  contact_creation_DateTime DateTime      @default(now())
+  contact_name              String
+  contact_picture_link      String?
+  contact_description       String?
+  contact_telephone_numbers PhoneNumber[]
+  contact_email             String?
+  contact_address           String?
+  contact_facebook          String?
+  contact_instagram         String?
+  Pet                       Pet           @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id             Int
 }
 
 model Description {
@@ -152,14 +162,16 @@ model ImportantInformation {
 
 model PhoneNumber {
   phone_number_id       Int    @id @default(autoincrement())
-  Pet                   Pet?   @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id         Int
+  // Pet                   Pet?   @relation(fields: [petProfile_id], references: [profile_id])
+  // petProfile_id         Int
   phone_number          String
   phone_number_priority Int    @default(0)
 
   // @@id([petProfile_id, phone_number])
   Country             Country? @relation(fields: [countryLanguage_key], references: [country_key])
   countryLanguage_key String?
+  Contact             Contact? @relation(fields: [contactContact_id], references: [contact_id])
+  contactContact_id   Int?
 }
 
 model Document {
