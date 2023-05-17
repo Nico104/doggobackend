@@ -46,12 +46,13 @@ model Language {
 }
 
 model User {
-  useremail          String       @id @unique
-  userSignUpDateTime DateTime     @default(now())
+  useremail          String               @id @unique
+  userSignUpDateTime DateTime             @default(now())
   userpassword       String
   user_pet_profile   Pet[]
   Tag                CollarTag[]
   UserLogins         UserLogins[]
+  ContactDescription ContactDescription[]
 }
 
 model PendingAccount {
@@ -126,18 +127,30 @@ model Pet {
 }
 
 model Contact {
-  contact_id                Int           @id @default(autoincrement())
-  contact_creation_DateTime DateTime      @default(now())
-  contact_name              String
-  contact_picture_link      String?
-  contact_description       String?
-  contact_telephone_numbers PhoneNumber[]
-  contact_email             String?
-  contact_address           String?
-  contact_facebook          String?
-  contact_instagram         String?
-  Pet                       Pet           @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id             Int
+  contact_id                               Int                 @id @default(autoincrement())
+  contact_creation_DateTime                DateTime            @default(now())
+  contact_name                             String
+  contact_picture_link                     String?
+  contact_description                      ContactDescription? @relation(fields: [contactDescriptionContact_description_id], references: [contact_description_id])
+  contactDescriptionContact_description_id Int?
+  contact_telephone_numbers                PhoneNumber[]
+  contact_email                            String?
+  contact_address                          String?
+  contact_facebook                         String?
+  contact_instagram                        String?
+  Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id                            Int
+}
+
+model ContactDescription {
+  contact_description_id                Int       @id @default(autoincrement())
+  contact_description_label             String
+  contact_description_hex               String
+  Contact                               Contact[]
+  created_by                            User      @relation(fields: [userUseremail], references: [useremail])
+  userUseremail                         String
+  contact_description_creation_DateTime DateTime  @default(now())
+  contact_description_updated_DateTime  DateTime  @default(now())
 }
 
 model Description {

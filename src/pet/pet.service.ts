@@ -37,6 +37,7 @@ export class PetService {
                                 }
                             }
                         },
+                        contact_description: true
                     }
                 }
             }
@@ -80,6 +81,7 @@ export class PetService {
                                 }
                             }
                         },
+                        contact_description: true,
                     }
                 },
                 pet_pictures: true,

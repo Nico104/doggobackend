@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { S3uploadService } from 'src/s3upload/s3upload.service';
-import { Contact, PhoneNumber } from '@prisma/client';
+import { Contact, ContactDescription, PhoneNumber } from '@prisma/client';
 
 //TODO Cybersecurity xD
 @Controller('contact')
@@ -13,7 +13,7 @@ export class ContactController {
 
 
     @Get('getPetContacts/:petProfileId')
-    async getUserTags(@Request() req: any, @Param('petProfileId') petProfileId: string): Promise<Contact[]> {
+    async getPetContacts(@Request() req: any, @Param('petProfileId') petProfileId: string): Promise<Contact[]> {
         return this.contactService.Contacts({
             where: {
                 petProfile_id: Number(petProfileId)
@@ -23,7 +23,7 @@ export class ContactController {
 
 
     @Get('getContact/:contactId')
-    async getUserPet(@Param('contactId') contactId: string
+    async getContact(@Param('contactId') contactId: string
     ): Promise<Contact> {
         return this.contactService.Contact(
             { contact_id: Number(contactId) }
@@ -38,7 +38,6 @@ export class ContactController {
             pet_profile_id: number;
             contact_name: string;
             contact_picture_link?: string;
-            contact_description?: string;
             contact_email?: string;
             contact_address?: string;
             contact_facebook?: string;
@@ -54,7 +53,6 @@ export class ContactController {
                 },
                 contact_name: data.contact_name,
                 contact_picture_link: data.contact_picture_link,
-                contact_description: data.contact_description,
                 contact_email: data.contact_email,
                 contact_address: data.contact_address,
                 contact_facebook: data.contact_facebook,
@@ -70,7 +68,6 @@ export class ContactController {
             contact_id: number;
             contact_name?: string;
             contact_picture_link?: string;
-            contact_description?: string;
             contact_email?: string;
             contact_address?: string;
             contact_facebook?: string;
@@ -82,7 +79,6 @@ export class ContactController {
                 data: {
                     contact_name: data.contact_name,
                     contact_picture_link: data.contact_picture_link,
-                    contact_description: data.contact_description,
                     contact_email: data.contact_email,
                     contact_address: data.contact_address,
                     contact_facebook: data.contact_facebook,
@@ -176,20 +172,134 @@ export class ContactController {
             phone_number_id: string;
         },
     ): Promise<PhoneNumber> {
-        // console.log("Phone Number ID: " + data.phone_number_id);
-        // if (await this.petService.isUserPhoneNumberOwner({
-        //     useremail: req.user.useremail,
-        //     phone_number_id: Number(data.phone_number_id),
-        // })) {
-        //     return this.petService.deletePhoneNumber(
-        //         {
-        //             phone_number_id: Number(data.phone_number_id),
-        //         },
-        //     );
-        // }
         return this.contactService.deletePhoneNumber(
             {
                 phone_number_id: Number(data.phone_number_id),
+            },
+        );
+    }
+
+    //Contact Description
+    @Get('getUserContactDescriptions')
+    async getUserContactDescriptions(@Request() req: any): Promise<ContactDescription[]> {
+        return this.contactService.ContactDescriptions({
+            where: {
+                created_by: {
+                    useremail: req.useremail
+                }
+            }
+        });
+    }
+
+    @Post('connectContactDescription')
+    async connectContactDescription(
+        @Request() req: any,
+        @Body() data: {
+            contact_id: number;
+            contact_description_id: number;
+        },
+    ): Promise<Contact> {
+        return this.contactService.updateContact(
+            {
+                data: {
+                    contact_description: {
+                        connect: {
+                            contact_description_id: data.contact_description_id,
+                        }
+                    }
+                },
+                where: {
+                    contact_id: data.contact_id
+                }
+
+            }
+        );
+    }
+
+    @Post('disconnectContactDescription')
+    async disconnectContactDescription(
+        @Request() req: any,
+        @Body() data: {
+            contact_id: number;
+        },
+    ): Promise<Contact> {
+        return this.contactService.updateContact(
+            {
+                data: {
+                    contact_description: {
+                        disconnect: true
+                    }
+                },
+                where: {
+                    contact_id: data.contact_id
+                }
+
+            }
+        );
+    }
+
+
+    @Post('createContactDescription')
+    async createContactDescription(
+        @Request() req: any,
+        @Body() data: {
+            contact_id: number;
+            contact_description_hex: string;
+            contact_description_label: string;
+        },
+    ): Promise<ContactDescription> {
+        return this.contactService.createContactDescription(
+            {
+                created_by: {
+                    connect: {
+                        useremail: req.useremail
+                    }
+                },
+                Contact: {
+                    connect: {
+                        contact_id: data.contact_id
+                    }
+                },
+                contact_description_hex: data.contact_description_hex,
+                contact_description_label: data.contact_description_label,
+            }
+        );
+    }
+
+    @Post('updateContactDescription')
+    async updateContactDescription(
+        @Request() req: any,
+        @Body() data: {
+            contact_description_id: number;
+            contact_description_hex: string;
+            contact_description_label: string;
+        },
+    ): Promise<ContactDescription> {
+        return this.contactService.updateContactDescription(
+            {
+                data: {
+                    contact_description_hex: data.contact_description_hex,
+                    contact_description_label: data.contact_description_label,
+                    contact_description_updated_DateTime: new Date(),
+                },
+                where: {
+                    contact_description_id: data.contact_description_id,
+                }
+
+            }
+        );
+    }
+
+    @Delete('deleteContactDescription')
+    async deleteContactDescription(
+        @Request() req: any,
+        @Body() data: {
+            contact_description_id: number;
+        },
+    ): Promise<ContactDescription> {
+        return this.contactService.deleteContactDescription(
+            {
+                contact_description_id: data.contact_description_id,
             },
         );
 

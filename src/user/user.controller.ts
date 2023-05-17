@@ -32,6 +32,21 @@ export class UserController {
                 {
                     useremail: userData.useremail,
                     userpassword: bcrypt.hashSync(userData.userpassword, 10),
+                    ContactDescription: {
+                        createMany: {
+                            //create Default Contact Descriptons
+                            data: [
+                                {
+                                    contact_description_label: "Owner",
+                                    contact_description_hex: "4169E1",
+                                },
+                                {
+                                    contact_description_label: "Vetenarian",
+                                    contact_description_hex: "50C878",
+                                },
+                            ],
+                        }
+                    }
                 }
             );
         } else {
