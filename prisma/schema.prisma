@@ -138,7 +138,7 @@ model Contact {
   contact_address                          String?
   contact_facebook                         String?
   contact_instagram                        String?
-  Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id                            Int
 }
 
@@ -154,7 +154,7 @@ model ContactDescription {
 }
 
 model Description {
-  Pet                      Pet      @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                      Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id            Int
   description_text         String
   description_language     Language @relation(fields: [description_language_key], references: [language_key])
@@ -164,7 +164,7 @@ model Description {
 }
 
 model ImportantInformation {
-  Pet                                Pet      @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                                Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id                      Int
   important_information_text         String
   important_information_language     Language @relation(fields: [important_information_language_key], references: [language_key])
@@ -183,13 +183,13 @@ model PhoneNumber {
   // @@id([petProfile_id, phone_number])
   Country             Country? @relation(fields: [countryLanguage_key], references: [country_key])
   countryLanguage_key String?
-  Contact             Contact? @relation(fields: [contactContact_id], references: [contact_id])
+  Contact             Contact? @relation(fields: [contactContact_id], references: [contact_id], onDelete: Cascade)
   contactContact_id   Int?
 }
 
 model Document {
   document_id   Int          @id @default(autoincrement())
-  Pet           Pet          @relation(fields: [petProfile_id], references: [profile_id])
+  Pet           Pet          @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id Int
   document_name String
   document_link String
@@ -198,7 +198,7 @@ model Document {
 
 model PetPicture {
   pet_picture_id       Int    @id @default(autoincrement())
-  Pet                  Pet    @relation(fields: [petProfile_id], references: [profile_id])
+  Pet                  Pet    @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id        Int
   pet_picture_link     String
   pet_picture_priority Int
@@ -207,7 +207,7 @@ model PetPicture {
 // https://ipgeolocation.io/ip-location/78.104.182.197
 model Scan {
   scan_id         Int      @id @default(autoincrement())
-  Pet             Pet      @relation(fields: [petProfile_id], references: [profile_id])
+  Pet             Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id   Int
   scan_DateTime   DateTime @default(now())
   scan_ip_address String

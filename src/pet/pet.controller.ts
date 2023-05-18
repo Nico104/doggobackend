@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet as PetModel, Description as DescriptionModel, ImportantInformation as ImportantInformationModel, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
+import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -58,7 +58,7 @@ export class PetController {
             let s3PicturePath: string = bucketName + '/' + 'petpictures/' + filename;
 
 
-            await resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 80);
+            await this.s3uploadService.resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 80);
 
 
             /**
@@ -272,7 +272,7 @@ export class PetController {
     //Pet
     @UseGuards(JwtAuthGuard)
     @Get('getUserPets')
-    async getUserPets(@Request() req: any): Promise<PetModel[]> {
+    async getUserPets(@Request() req: any): Promise<Pet[]> {
         console.log(req.user);
         return this.petService.Pets(
             {
@@ -288,7 +288,7 @@ export class PetController {
 
     @Get('getPet/:profile_id')
     async getUserPet(@Param('profile_id') profile_id: string
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         return this.petService.Pet(
             { profile_id: Number(profile_id) }
         );
@@ -309,7 +309,7 @@ export class PetController {
             // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
         },
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         return this.petService.createPet(
             {
                 pet_profile_user: {
@@ -346,7 +346,7 @@ export class PetController {
             // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
         },
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.profile_id,
             useremail: req.user.useremail,
@@ -379,7 +379,7 @@ export class PetController {
         @Body() data: {
             profile_id: number;
         },
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.profile_id,
             useremail: req.user.useremail,
@@ -403,7 +403,7 @@ export class PetController {
             language_key: string;
             description_text: string;
         },
-    ): Promise<DescriptionModel> {
+    ): Promise<Description> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
             useremail: req.user.useremail,
@@ -446,7 +446,7 @@ export class PetController {
             petProfile_id: number;
             language_key: string;
         },
-    ): Promise<DescriptionModel> {
+    ): Promise<Description> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
             useremail: req.user.useremail,
@@ -473,7 +473,7 @@ export class PetController {
             language_key: string;
             important_information_text: string;
         },
-    ): Promise<ImportantInformationModel> {
+    ): Promise<ImportantInformation> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
             useremail: req.user.useremail,
@@ -516,7 +516,7 @@ export class PetController {
             petProfile_id: number;
             language_key: string;
         },
-    ): Promise<ImportantInformationModel> {
+    ): Promise<ImportantInformation> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
             useremail: req.user.useremail,
@@ -595,7 +595,7 @@ export class PetController {
             profileId: number;
             collarTagId: string;
         },
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         return this.petService.connectTagFromPetProfile({
             profileId: data.profileId,
             collarTagId: data.collarTagId,
@@ -608,61 +608,11 @@ export class PetController {
             profileId: number;
             collarTagId: string;
         },
-    ): Promise<PetModel> {
+    ): Promise<Pet> {
         return this.petService.disconnectTagFromPetProfile({
             profileId: data.profileId,
             collarTagId: data.collarTagId,
         });
     }
 
-}
-
-
-/**
- * Resizes and saves image to a jpeg File
- * @param newPath Path where converted Image should be stored
- * @param oldPath Path of the Image which should be converted
- * @param width Resizing to width
- * @param height Resizing to height
- * @param quality Level of Quality which should be converted to
- */
-async function resizeAndSaveImageJpeg(newPath: string, oldPath: string, width: number, height: number, quality: number) {
-    const sharp = require('sharp');
-
-    const image = await sharp(oldPath)
-    const metadata = await image.metadata()
-    console.log(metadata.width, metadata.height)
-
-    console.log("PicturePath: " + newPath);
-
-    let _width: number = null;
-    let _height: number = null;
-    let _maxSize: number = 720;
-    if (metadata.width > _maxSize || metadata.height > _maxSize) {
-        if (metadata.width > metadata.height) {
-            _width = _maxSize;
-        } else if (metadata.height > metadata.width) {
-            _height = _maxSize;
-        } else if (metadata.height == metadata.width) {
-            _height = _maxSize;
-            _width = _maxSize;
-        }
-    }
-
-    console.log(_width, _height)
-
-    // await sharp(oldPath).resize(width, height).toFormat("png").png({ quality: quality })
-    //     .toFile(newPath).then(() => {
-    //         unlink(oldPath, (err) => {
-    //             if (err) throw err;
-    //             console.log(oldPath + ' was deleted2');
-    //         });
-    //     });;
-    await sharp(oldPath).resize({ width: _width, height: _height }).toFormat("png").png({ quality: quality })
-        .toFile(newPath).then(() => {
-            unlink(oldPath, (err) => {
-                if (err) throw err;
-                console.log(oldPath + ' was deleted2');
-            });
-        });;
 }

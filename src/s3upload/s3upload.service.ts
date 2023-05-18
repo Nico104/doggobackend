@@ -6,6 +6,8 @@ import { PrismaService } from 'src/prisma.service';
 import { S3 } from 'aws-sdk';
 import { Console } from 'console';
 
+import { unlink } from 'fs';
+
 export enum MediaType {
     Image,
     PDF,
@@ -105,5 +107,56 @@ export class S3uploadService {
             if (err) console.log(err, err.stack); // an error occurred
             else console.log(data);           // successful response
         });
+    }
+
+
+
+    /**
+     * Resizes and saves image to a jpeg File
+     * @param newPath Path where converted Image should be stored
+     * @param oldPath Path of the Image which should be converted
+     * @param width Resizing to width
+     * @param height Resizing to height
+     * @param quality Level of Quality which should be converted to
+     */
+    async resizeAndSaveImageJpeg(newPath: string, oldPath: string, width: number, height: number, quality: number) {
+        const sharp = require('sharp');
+
+        const image = await sharp(oldPath)
+        const metadata = await image.metadata()
+        console.log(metadata.width, metadata.height)
+
+        console.log("PicturePath: " + newPath);
+
+        let _width: number = null;
+        let _height: number = null;
+        let _maxSize: number = 720;
+        if (metadata.width > _maxSize || metadata.height > _maxSize) {
+            if (metadata.width > metadata.height) {
+                _width = _maxSize;
+            } else if (metadata.height > metadata.width) {
+                _height = _maxSize;
+            } else if (metadata.height == metadata.width) {
+                _height = _maxSize;
+                _width = _maxSize;
+            }
+        }
+
+        console.log(_width, _height)
+
+        // await sharp(oldPath).resize(width, height).toFormat("png").png({ quality: quality })
+        //     .toFile(newPath).then(() => {
+        //         unlink(oldPath, (err) => {
+        //             if (err) throw err;
+        //             console.log(oldPath + ' was deleted2');
+        //         });
+        //     });;
+        await sharp(oldPath).resize({ width: _width, height: _height }).toFormat("png").png({ quality: quality })
+            .toFile(newPath).then(() => {
+                unlink(oldPath, (err) => {
+                    if (err) throw err;
+                    console.log(oldPath + ' was deleted2');
+                });
+            });;
     }
 }
