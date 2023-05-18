@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInte
 import { ContactService } from './contact.service';
 import { S3uploadService } from 'src/s3upload/s3upload.service';
 import { Contact, ContactDescription, PhoneNumber } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 //TODO Cybersecurity xD
 @Controller('contact')
@@ -137,6 +138,7 @@ export class ContactController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('createPhoneNumber')
     async createPhoneNumber(
         @Request() req: any,
@@ -163,7 +165,7 @@ export class ContactController {
         );
     }
 
-
+    @UseGuards(JwtAuthGuard)
     @Delete('deletePhoneNumber')
     async deletePhoneNumber(
         @Request() req: any,
@@ -180,6 +182,7 @@ export class ContactController {
     }
 
     //Contact Description
+    @UseGuards(JwtAuthGuard)
     @Get('getUserContactDescriptions')
     async getUserContactDescriptions(@Request() req: any): Promise<ContactDescription[]> {
         return this.contactService.ContactDescriptions({
@@ -191,6 +194,7 @@ export class ContactController {
         });
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('connectContactDescription')
     async connectContactDescription(
         @Request() req: any,
@@ -216,6 +220,7 @@ export class ContactController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('disconnectContactDescription')
     async disconnectContactDescription(
         @Request() req: any,
@@ -239,6 +244,7 @@ export class ContactController {
     }
 
 
+    @UseGuards(JwtAuthGuard)
     @Post('createContactDescription')
     async createContactDescription(
         @Request() req: any,
@@ -252,7 +258,7 @@ export class ContactController {
             {
                 created_by: {
                     connect: {
-                        useremail: req.useremail
+                        useremail: req.user.useremail
                     }
                 },
                 Contact: {
@@ -266,6 +272,7 @@ export class ContactController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('updateContactDescription')
     async updateContactDescription(
         @Request() req: any,
