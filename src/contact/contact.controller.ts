@@ -20,16 +20,35 @@ export class ContactController {
     ) { }
 
 
+    @UseGuards(JwtAuthGuard)
+    @Get('getUserContacts')
+    async getUserContacts(@Request() req: any): Promise<Contact[]> {
+        return this.contactService.Contacts({
+            where: {
+                createdBy: {
+                    useremail: req.user.useremail
+                }
+            }
+        });
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Get('getPetContacts/:petProfileId')
     async getPetContacts(@Request() req: any, @Param('petProfileId') petProfileId: string): Promise<Contact[]> {
         return this.contactService.Contacts({
             where: {
-                petProfile_id: Number(petProfileId)
+                // petProfile_id: Number(petProfileId)
+                Pet: {
+                    some: {
+                        profile_id: Number(petProfileId)
+                    }
+                }
             }
         });
     }
 
 
+    @UseGuards(JwtAuthGuard)
     @Get('getContact/:contactId')
     async getContact(@Param('contactId') contactId: string
     ): Promise<Contact> {
@@ -39,11 +58,12 @@ export class ContactController {
     }
 
 
+    @UseGuards(JwtAuthGuard)
     @Post('createContact')
     async createContact(
         @Request() req: any,
         @Body() data: {
-            pet_profile_id: number;
+            // pet_profile_id: number;
             contact_name: string;
             contact_picture_link?: string;
             contact_email?: string;
@@ -54,21 +74,77 @@ export class ContactController {
     ): Promise<Contact> {
         return this.contactService.createContact(
             {
-                Pet: {
-                    connect: {
-                        profile_id: data.pet_profile_id
-                    }
-                },
+                // Pet: {
+                //     connect: {
+                //         profile_id: data.pet_profile_id
+                //     }
+                // },
                 contact_name: data.contact_name,
                 contact_picture_link: data.contact_picture_link,
                 contact_email: data.contact_email,
                 contact_address: data.contact_address,
                 contact_facebook: data.contact_facebook,
                 contact_instagram: data.contact_instagram,
+                createdBy: {
+                    connect: {
+                        useremail: req.user.useremail
+                    }
+                }
             }
         );
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Post('connectContactToPet')
+    async connectContactToPet(
+        @Request() req: any,
+        @Body() data: {
+            pet_profile_id: number;
+            contact_id: number;
+        },
+    ): Promise<Contact> {
+        return this.contactService.updateContact(
+            {
+                where: {
+                    contact_id: data.contact_id
+                },
+                data: {
+                    Pet: {
+                        connect: {
+                            profile_id: data.pet_profile_id
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('disconnectContactFromPet')
+    async disconnectContactFromPet(
+        @Request() req: any,
+        @Body() data: {
+            pet_profile_id: number;
+            contact_id: number;
+        },
+    ): Promise<Contact> {
+        return this.contactService.updateContact(
+            {
+                where: {
+                    contact_id: data.contact_id
+                },
+                data: {
+                    Pet: {
+                        disconnect: {
+                            profile_id: data.pet_profile_id
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Post('updateContact')
     async updateContact(
         @Request() req: any,
@@ -100,6 +176,7 @@ export class ContactController {
         );
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete('deleteContact')
     async deleteContact(
         @Request() req: any,
@@ -207,7 +284,7 @@ export class ContactController {
         return this.contactService.ContactDescriptions({
             where: {
                 created_by: {
-                    useremail: req.useremail
+                    useremail: req.user.useremail
                 }
             }
         });

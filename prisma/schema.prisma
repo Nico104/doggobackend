@@ -55,6 +55,7 @@ model User {
   UserLogins                  UserLogins[]
   ContactDescription          ContactDescription[]
   ChangeEmailVerificationCode ChangeEmailVerificationCode[]
+  Contact                     Contact[]
 }
 
 model PendingAccount {
@@ -152,8 +153,11 @@ model Contact {
   contact_address                          String?
   contact_facebook                         String?
   contact_instagram                        String?
-  Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
-  petProfile_id                            Int
+  // Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  // petProfile_id                            Int
+  Pet                                      Pet[]
+  createdBy                                User                @relation(fields: [userUseremail], references: [useremail])
+  userUseremail                            String
 }
 
 model ContactDescription {

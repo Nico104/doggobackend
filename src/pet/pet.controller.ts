@@ -102,7 +102,7 @@ export class PetController {
     ): Promise<void> {
         let isUserPictureOwner: Boolean = await this.petService.isUserPictureOwner({
             pet_picture_id: Number(data.pet_picture_id),
-            useremail: req.useremail,
+            useremail: req.user.useremail,
         });
 
         if (isUserPictureOwner) {
@@ -230,7 +230,7 @@ export class PetController {
     ): Promise<void> {
         let isUserDocumentOwner: Boolean = await this.petService.isUserDocumentOwner({
             document_id: Number(data.pet_document_id),
-            useremail: req.useremail,
+            useremail: req.user.useremail,
         });
 
         if (isUserDocumentOwner) {
@@ -291,6 +291,26 @@ export class PetController {
     ): Promise<Pet> {
         return this.petService.Pet(
             { profile_id: Number(profile_id) }
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('getPetsFromContact/:contact_id')
+    async getPetsFromContact(@Request() req: any, @Param('contact_id') contact_id: string): Promise<Pet[]> {
+        console.log(req.user);
+        return this.petService.Pets(
+            {
+                where: {
+                    Contact: {
+                        some: {
+                            contact_id: Number(contact_id),
+                        }
+                    }
+                },
+                orderBy: {
+                    profile_creation_DateTime: 'desc'
+                }
+            }
         );
     }
 
