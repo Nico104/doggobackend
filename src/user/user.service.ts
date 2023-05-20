@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { User, Prisma, PendingAccount } from '@prisma/client';
+import { User, Prisma, PendingAccount, ChangeEmailVerificationCode } from '@prisma/client';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -76,7 +76,7 @@ export class UserService {
      * @param code for the code to check
      * @returns false if no Pending Account corresponds, otherwise true
      */
-    async checkCode(
+    async checkPendingAccountCode(
         useremail: string,
         code: number
     ): Promise<Boolean> {
@@ -106,7 +106,7 @@ export class UserService {
         useremail: string,
         code: number
     ): Promise<PendingAccount> {
-        console.log(useremail);
+        console.log("Email" + useremail);
         //send mail
         this.mailService.sendEmailConfirmationCode(useremail, code.toString());
 
@@ -132,23 +132,79 @@ export class UserService {
         })
     }
 
-    /**
-   * Updates the User's Password
-   * @param userpassword for the new User password
-   * @param username for the User searched for 
-  */
-    async updateUserPassword(
-        useremail: string,
-        userpassword: string,
-    ): Promise<User> {
-        return this.prisma.user.update({
+
+    //Change UserEmail
+    async sendVerificationEmail(
+        sendByUseremail: string,
+        email: string,
+        code: string,
+    ): Promise<ChangeEmailVerificationCode> {
+        console.log("Sending mail to " + email);
+        //send mail
+        this.mailService.sendEmailVerificationCode(email, code);
+
+        await this.prisma.changeEmailVerificationCode.updateMany({
             where: {
-                useremail: useremail
+                email: email
             },
             data: {
-                userpassword: userpassword,
-                // genPassword: false
+                isValid: false,
+                unvalidifiedDateTime: new Date(),
             }
-        })
+        });
+
+        return this.prisma.changeEmailVerificationCode.create({
+            data: {
+                email: email,
+                verificationCode: code,
+                sendBy: {
+                    connect: {
+                        useremail: sendByUseremail
+                    }
+                }
+            }
+        });
+    }
+
+    async checkVerificationCode(
+        sendByUseremail: string,
+        email: string,
+        code: string,
+    ): Promise<Boolean> {
+        let isValid: Boolean = await this.prisma.changeEmailVerificationCode.count({
+            where: {
+                AND: [
+                    {
+                        email: email
+                    },
+                    {
+                        sendBy: {
+                            useremail: sendByUseremail
+                        }
+                    },
+                    {
+                        verificationCode: code
+                    },
+                    {
+                        isValid: true
+                    }
+                ]
+            }
+        }) != 0;
+
+        if (isValid) {
+            await this.prisma.changeEmailVerificationCode.updateMany({
+                where: {
+                    email: email
+                },
+                data: {
+                    isValid: false,
+                    verifiedDateTime: new Date(),
+                }
+            });
+        }
+
+
+        return isValid;
     }
 }

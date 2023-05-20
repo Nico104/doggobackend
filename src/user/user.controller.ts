@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User as UserModel } from '@prisma/client';
+import { User, User as UserModel } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -25,7 +25,7 @@ export class UserController {
     ): Promise<UserModel> {
 
         //Double check so nobody can just directly send the signupUser request
-        if (this.userService.checkCode(userData.useremail, Number(userData.verificationCode))) {
+        if (this.userService.checkPendingAccountCode(userData.useremail, Number(userData.verificationCode))) {
             this.userService.devalidatePendingAccount(userData.useremail);
 
             return this.userService.createUser(
@@ -52,6 +52,20 @@ export class UserController {
         } else {
             return null;
         }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('getName')
+    async getName(
+        @Request() req,
+    ): Promise<String> {
+        let _user: User = await this.userService.User(
+            {
+                useremail: req.user.useremail
+            }
+        );
+
+        return _user.name;
     }
 
     /**
@@ -97,11 +111,54 @@ export class UserController {
             verificationCode: string
         },
     ): Promise<Boolean> {
-        return this.userService.checkCode(userData.useremail, Number(userData.verificationCode));
+        return this.userService.checkPendingAccountCode(userData.useremail, Number(userData.verificationCode));
+    }
+
+    //Change Name
+    @UseGuards(JwtAuthGuard)
+    @Post('updateUserName')
+    async updateUserName(
+        @Request() req,
+        @Body() data: {
+            name: string
+        }) {
+        return this.userService.updateUser(
+            {
+                where: {
+                    useremail: req.user.useremail,
+                },
+                data: {
+                    name: data.name
+                }
+            }
+        )
+    }
+
+    //Change Name
+    /**
+     * Updates the User's Password
+     * @param userpassword for the new User password
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('updateName')
+    async updateName(
+        @Request() req,
+        @Body() data: {
+            name: string
+        }) {
+        return this.userService.updateUser(
+            {
+                where: {
+                    useremail: req.user.useremail,
+                },
+                data: {
+                    name: data.name
+                }
+            }
+        )
     }
 
     //Change Password
-
     /**
      * Updates the User's Password
      * @param userpassword for the new User password
@@ -113,6 +170,80 @@ export class UserController {
         @Body() data: {
             userpassword: string
         }) {
-        return this.userService.updateUserPassword(req.user.useremail, bcrypt.hashSync(data.userpassword, 10));
+        return this.userService.updateUser(
+            {
+                where: {
+                    useremail: req.user.useremail,
+                },
+                data: {
+                    userpassword: bcrypt.hashSync(data.userpassword, 10),
+                }
+            }
+        )
     }
+
+    //Change Email
+    @UseGuards(JwtAuthGuard)
+    @Post('sendVerificationEmail')
+    async sendVerificationEmail(
+        @Request() req,
+        @Body() data: {
+            email?: string | null
+        }) {
+
+        var code: number = Math.floor(100000 + Math.random() * 900000);
+
+        if (data.email == null) {
+            return this.userService.sendVerificationEmail(req.user.useremail, req.user.useremail, code.toString());
+        } else {
+            return this.userService.sendVerificationEmail(req.user.useremail, data.email, code.toString());
+        }
+
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('checkVerificationCode')
+    async checkVerificationCode(
+        @Request() req,
+        @Body() data: {
+            email?: string | null
+            code: string,
+        }): Promise<Boolean> {
+
+        if (data.email == null) {
+            return this.userService.checkVerificationCode(req.user.useremail, req.user.useremail, data.code);
+        } else {
+            return this.userService.checkVerificationCode(req.user.useremail, data.email, data.code);
+        }
+
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('checkVerificationCodeUpdateEmail')
+    async checkVerificationCodeUpdateEmail(
+        @Request() req,
+        @Body() data: {
+            email: string,
+            code: string,
+        }): Promise<Boolean> {
+        let isValid: Boolean = await this.userService.checkVerificationCode(req.user.useremail, data.email, data.code);
+
+        if (isValid) {
+            this.userService.updateUser(
+                {
+                    where: {
+                        useremail: req.user.useremail
+                    },
+                    data: {
+                        useremail: data.email
+                    }
+                }
+            );
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

@@ -11,12 +11,13 @@ import { ConfigService } from '@nestjs/config';
       // transport: 'smtps://user@example.com:topsecret@smtp.example.com',
       // or
       transport: {
+        //! Does not work in dorm network!
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
           user: 'testemailnicoproject@gmail.com',
-          pass: 'hnclicgggnmitjal',
+          pass: 'ytpawshiaxfoiisp',
         },
       },
       defaults: {
