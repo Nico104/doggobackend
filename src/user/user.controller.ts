@@ -4,6 +4,8 @@ import { User, User as UserModel } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+import * as admin from 'firebase-admin';
+
 @Controller('user')
 export class UserController {
     constructor(
@@ -20,6 +22,7 @@ export class UserController {
         @Body() userData: {
             useremail: string;
             userpassword: string;
+            name: string;
             verificationCode: string;
         },
     ): Promise<UserModel> {
@@ -32,6 +35,7 @@ export class UserController {
                 {
                     useremail: userData.useremail,
                     userpassword: bcrypt.hashSync(userData.userpassword, 10),
+                    name: userData.name,
                     ContactDescription: {
                         createMany: {
                             //create Default Contact Descriptons
@@ -244,6 +248,90 @@ export class UserController {
         } else {
             return false;
         }
+    }
+
+
+    ///Messaging FCM
+    @UseGuards(JwtAuthGuard)
+    @Post('connectDeviceTokenToUser')
+    async connectDeviceTokenToUser(
+        @Request() req,
+        @Body() data: {
+            token: string
+        }) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    useremail: req.user.useremail,
+                },
+                data: {
+                    DeviceMessagingToken: {
+                        connectOrCreate: {
+                            where: {
+                                token: data.token
+                            },
+                            create: {
+                                token: data.token,
+                            },
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('deleteDeviceToken')
+    async deleteDeviceTokenToUser(
+        @Request() req,
+        @Body() data: {
+            token: string
+        }) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    useremail: req.user.useremail,
+                },
+                data: {
+                    DeviceMessagingToken: {
+                        delete: {
+                            token: data.token
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+
+    @Post('testFCM')
+    async testFCM(
+        @Body() data: {
+            fcmToken: string;
+        },
+    ): Promise<any> {
+        const registrationTokens = [
+            data.fcmToken,
+        ];
+
+        const message = {
+            notification: { title: 'Schmol Tabo', body: '5% off all the tabos' },
+            data: { type: "scan" },
+            tokens: registrationTokens,
+        };
+
+        admin.messaging().sendEachForMulticast(message)
+            .then((response) => {
+                if (response.failureCount > 0) {
+                    const failedTokens = [];
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            failedTokens.push(registrationTokens[idx]);
+                        }
+                    });
+                    console.log('List of tokens that caused failures: ' + failedTokens);
+                }
+            });
     }
 
 }

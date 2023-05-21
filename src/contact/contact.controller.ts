@@ -28,6 +28,9 @@ export class ContactController {
                 createdBy: {
                     useremail: req.user.useremail
                 }
+            },
+            orderBy: {
+                contact_creation_DateTime: 'desc'
             }
         });
     }
@@ -43,6 +46,9 @@ export class ContactController {
                         profile_id: Number(petProfileId)
                     }
                 }
+            },
+            orderBy: {
+                contact_creation_DateTime: 'desc'
             }
         });
     }

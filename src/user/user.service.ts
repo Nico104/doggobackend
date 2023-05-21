@@ -207,4 +207,6 @@ export class UserService {
 
         return isValid;
     }
+
+    //DeviceMessagingToken
 }

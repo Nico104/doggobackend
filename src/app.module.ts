@@ -16,9 +16,10 @@ import { ScanModule } from './scan/scan.module';
 import { ContactController } from './contact/contact.controller';
 import { ContactService } from './contact/contact.service';
 import { ContactModule } from './contact/contact.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule,
+  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule, NotificationModule,
     //    MailerModule.forRoot({
     //   // transport: 'smtps://user@domain.com:pass@smtp.domain.com',
     //   transport: {

@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Scan } from '@prisma/client';
+import { NotificationService } from 'src/notification/notification.service';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ScanService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService,
+    ) { }
 
     async Scans(params: {
         skip?: number;
@@ -23,9 +27,34 @@ export class ScanService {
         });
     }
 
-    async createTag(data: Prisma.ScanCreateInput): Promise<Scan> {
-        return this.prisma.scan.create({
+    async createScan(data: Prisma.ScanCreateInput): Promise<Scan> {
+        let Scan = await this.prisma.scan.create({
             data,
         });
+
+        let Pet = await this.prisma.pet.findUnique({
+            where: {
+                profile_id: Scan.petProfile_id
+            }
+        });
+
+        let notificationTitle: string = "Someone found " + Pet.pet_name;
+        let notificationBody: string = Pet.pet_name + " just got scanned in " + Scan.scan_country;
+
+        // create Notification
+        this.notificationService.createNotification(
+            {
+                notificationTitle: notificationTitle,
+                notificationBody: notificationBody,
+                notificationType: "scan",
+                User: {
+                    connect: {
+                        useremail: Pet.pet_profile_username
+                    }
+                }
+            }
+        );
+
+        return Scan;
     }
 }

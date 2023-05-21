@@ -56,6 +56,26 @@ model User {
   ContactDescription          ContactDescription[]
   ChangeEmailVerificationCode ChangeEmailVerificationCode[]
   Contact                     Contact[]
+  DeviceMessagingToken        DeviceMessagingToken[]
+  Notification                Notification[]
+}
+
+//Could become logged in device
+model DeviceMessagingToken {
+  token         String @id
+  User          User   @relation(fields: [userUseremail], references: [useremail], onDelete: Cascade)
+  userUseremail String
+}
+
+model Notification {
+  notificationId    Int      @id @default(autoincrement())
+  notificationType  String
+  notificationTitle String
+  notificationBody  String
+  creationDateTime  DateTime @default(now())
+  read              Boolean  @default(false)
+  User              User     @relation(fields: [userUseremail], references: [useremail], onDelete: Cascade)
+  userUseremail     String
 }
 
 model PendingAccount {
@@ -127,6 +147,7 @@ model Pet {
   profile_id                Int                    @id @default(autoincrement())
   profile_creation_DateTime DateTime               @default(now())
   pet_profile_user          User                   @relation(fields: [pet_profile_username], references: [useremail])
+  //should be pet_profile_useremail
   pet_profile_username      String
   pet_name                  String
   pet_gender                Gender?

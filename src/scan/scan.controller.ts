@@ -3,6 +3,7 @@ import { ScanService } from './scan.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Scan } from '@prisma/client';
 
+
 @Controller('scan')
 export class ScanController {
     constructor(
@@ -21,4 +22,5 @@ export class ScanController {
     //         }
     //     });
     // }
+
 }
