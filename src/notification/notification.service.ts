@@ -43,6 +43,37 @@ export class NotificationService {
         });
     }
 
+    async readAllUserNotifications(params: { useremail: string }
+    ) {
+        return this.prisma.notification.updateMany({
+            where: {
+                User: {
+                    useremail: params.useremail
+                },
+                read: false
+            },
+            data: {
+                read: true,
+                seen: true,
+            }
+        });
+    }
+
+    async seenAllUserNotifications(params: { useremail: string }
+    ) {
+        return this.prisma.notification.updateMany({
+            where: {
+                User: {
+                    useremail: params.useremail
+                },
+                seen: false
+            },
+            data: {
+                seen: true
+            }
+        });
+    }
+
     async deleteNotification(where: Prisma.NotificationWhereUniqueInput): Promise<Notification> {
         return this.prisma.notification.delete({
             where,

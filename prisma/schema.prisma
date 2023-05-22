@@ -74,6 +74,7 @@ model Notification {
   notificationBody  String
   creationDateTime  DateTime @default(now())
   read              Boolean  @default(false)
+  seen              Boolean  @default(false)
   User              User     @relation(fields: [userUseremail], references: [useremail], onDelete: Cascade)
   userUseremail     String
 }
