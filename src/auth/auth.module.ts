@@ -6,19 +6,23 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { UserModule } from 'src/user/user.module';
 import { GoogleStrategy } from './google.strategy';
+import { UserService } from 'src/user/user.service';
+import { PrismaModule } from 'src/prisma.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
-    UserModule,
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.SECRET,
-      signOptions: {
-        expiresIn: '6000s'
-      }
-    }),
+    // PassportModule,
+    // JwtModule.register({
+    //   secret: process.env.SECRET,
+    //   signOptions: {
+    //     expiresIn: '6000s'
+    //   }
+    // }),
+    PrismaModule,
+    MailModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, UserService],
   exports: [AuthService]
 })
 export class AuthModule { }

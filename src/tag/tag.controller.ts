@@ -6,6 +6,7 @@ import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
 import { diskStorage } from 'multer';
 import { GlobalService } from 'src/utils/global.service';
+import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 
 // var directoryPath = GlobalService.rootPath + 'MediaFiles/';
 var directoryPath = GlobalService.rootPath + 'TagFiles/';
@@ -20,7 +21,7 @@ export class TagController {
 
     //!Tag Functions for Administartion
     //! Only Mod Rights
-    // @UseGuards(JwtAuthGuard)
+    // @UseGuards(TokenIdAuthGuard)
     @Post('uploadCollarTagPicture')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1, },
@@ -88,13 +89,13 @@ export class TagController {
 
     //!Tag Functions for Client
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserTags')
     async getUserTags(@Request() req: any): Promise<CollarTag[]> {
         return this.tagService.Tags({
             where: {
-                assigned_user: {
-                    useremail: req.user.useremail
+                user: {
+                    uid: req.user.uid
                 }
             },
             orderBy: {
@@ -103,7 +104,7 @@ export class TagController {
         });
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserProfileTags/:petProfileId')
     async getUserProfileTags(
         @Request() req: any,
@@ -111,8 +112,8 @@ export class TagController {
     ): Promise<CollarTag[]> {
         return this.tagService.Tags({
             where: {
-                assigned_user: {
-                    useremail: req.user.useremail
+                user: {
+                    uid: req.user.uid
                 },
                 petProfile_id: Number(petProfileId),
             },
@@ -123,7 +124,7 @@ export class TagController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('assignTagToUser')
     async assignTagToUser(
         @Request() req: any,
@@ -135,7 +136,7 @@ export class TagController {
         return this.tagService.connectTagToUser(
             {
                 activationCode: data.activationCode,
-                useremail: req.user.useremail,
+                uid: req.user.uid,
             }
         );
     }

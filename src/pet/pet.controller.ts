@@ -7,6 +7,7 @@ import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@n
 import { diskStorage } from 'multer';
 import { unlink } from 'fs';
 import { GlobalService } from 'src/utils/global.service';
+import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 
 var directoryPath = GlobalService.rootPath + 'MediaFiles/';
 
@@ -26,7 +27,7 @@ export class PetController {
      * @param picture for the new Profile Picture file
      * @param profileBio for the new Profile Bio
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('uploadPicture/:profile_id')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1, },
@@ -90,7 +91,7 @@ export class PetController {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('deletePicture')
     async deletePicture(
         @Request() req,
@@ -102,7 +103,7 @@ export class PetController {
     ): Promise<void> {
         let isUserPictureOwner: Boolean = await this.petService.isUserPictureOwner({
             pet_picture_id: Number(data.pet_picture_id),
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         });
 
         if (isUserPictureOwner) {
@@ -148,7 +149,7 @@ export class PetController {
      * @param picture for the new Profile Picture file
      * @param profileBio for the new Profile Bio
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('uploadDocument/:profile_id')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'document', maxCount: 1, },
@@ -218,7 +219,7 @@ export class PetController {
 
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('deleteDocument')
     async deleteDocument(
         @Request() req,
@@ -230,7 +231,7 @@ export class PetController {
     ): Promise<void> {
         let isUserDocumentOwner: Boolean = await this.petService.isUserDocumentOwner({
             document_id: Number(data.pet_document_id),
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         });
 
         if (isUserDocumentOwner) {
@@ -270,14 +271,16 @@ export class PetController {
 
 
     //Pet
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserPets')
     async getUserPets(@Request() req: any): Promise<Pet[]> {
         console.log(req.user);
         return this.petService.Pets(
             {
                 where: {
-                    pet_profile_username: req.user.useremail
+                    user: {
+                        uid: req.user.uid
+                    }
                 },
                 orderBy: {
                     profile_creation_DateTime: 'desc'
@@ -294,7 +297,7 @@ export class PetController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getPetsFromContact/:contact_id')
     async getPetsFromContact(@Request() req: any, @Param('contact_id') contact_id: string): Promise<Pet[]> {
         console.log(req.user);
@@ -314,7 +317,7 @@ export class PetController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('createPet')
     async createPet(
         @Request() req: any,
@@ -332,9 +335,9 @@ export class PetController {
     ): Promise<Pet> {
         return this.petService.createPet(
             {
-                pet_profile_user: {
+                user: {
                     connect: {
-                        useremail: req.user.useremail
+                        uid: req.user.uid
                     }
                 },
                 pet_name: data.pet_name,
@@ -350,7 +353,7 @@ export class PetController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('updatePet')
     async updatePet(
         @Request() req: any,
@@ -369,7 +372,7 @@ export class PetController {
     ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.profile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.updatePet(
                 {
@@ -392,7 +395,7 @@ export class PetController {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deletePet')
     async deletePet(
         @Request() req: any,
@@ -402,7 +405,7 @@ export class PetController {
     ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.profile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.deletePet(
                 {
@@ -414,7 +417,7 @@ export class PetController {
     }
 
     //Description
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('upsertDescription')
     async upsertDescription(
         @Request() req: any,
@@ -426,7 +429,7 @@ export class PetController {
     ): Promise<Description> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.upsertDescription(
                 {
@@ -458,7 +461,7 @@ export class PetController {
 
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deleteDescription')
     async deleteDescription(
         @Request() req: any,
@@ -469,7 +472,7 @@ export class PetController {
     ): Promise<Description> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.deleteDescription(
                 {
@@ -484,7 +487,7 @@ export class PetController {
     }
 
     //ImportantInformation
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('upsertImportantInformation')
     async upsertImportantInformation(
         @Request() req: any,
@@ -496,7 +499,7 @@ export class PetController {
     ): Promise<ImportantInformation> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.upsertImportantInformation(
                 {
@@ -528,7 +531,7 @@ export class PetController {
 
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deleteImportantInformation')
     async deleteImportantInformation(
         @Request() req: any,
@@ -539,7 +542,7 @@ export class PetController {
     ): Promise<ImportantInformation> {
         if (await this.petService.isUserPetOwner({
             profile_id: data.petProfile_id,
-            useremail: req.user.useremail,
+            uid: req.user.uid,
         })) {
             return this.petService.deleteImportantInformation(
                 {

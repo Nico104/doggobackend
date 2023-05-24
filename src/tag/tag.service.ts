@@ -31,7 +31,7 @@ export class TagService {
 
     async connectTagToUser(params: {
         activationCode: string,
-        useremail: string
+        uid: string
     }): Promise<CollarTag> {
         if (await this.checkTagAssignedWithActivationCode(
             { activationCode: params.activationCode }
@@ -42,9 +42,9 @@ export class TagService {
                     activationCode: params.activationCode,
                 },
                 data: {
-                    assigned_user: {
+                    user: {
                         connect: {
-                            useremail: params.useremail
+                            uid: params.uid
                         }
                     },
                     assignedDate: new Date(),
@@ -69,7 +69,7 @@ export class TagService {
                         activationCode: params.activationCode
                     },
                     {
-                        assigned_user: null,
+                        user: null,
                         // assignedUseremail: null
                     },
                 ]
@@ -86,7 +86,7 @@ export class TagService {
                 collarTag_id: params.tagId,
             },
             data: {
-                assigned_user: {
+                user: {
                     disconnect: true
                 },
                 assigned_pet: {

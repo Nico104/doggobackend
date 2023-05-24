@@ -6,6 +6,7 @@ import { diskStorage } from 'multer';
 import { Contact, ContactDescription, PhoneNumber } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GlobalService } from 'src/utils/global.service';
+import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 
 
 var directoryPath = GlobalService.rootPath + 'MediaFiles/';
@@ -20,13 +21,13 @@ export class ContactController {
     ) { }
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserContacts')
     async getUserContacts(@Request() req: any): Promise<Contact[]> {
         return this.contactService.Contacts({
             where: {
                 createdBy: {
-                    useremail: req.user.useremail
+                    uid: req.user.uid
                 }
             },
             orderBy: {
@@ -35,7 +36,7 @@ export class ContactController {
         });
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getPetContacts/:petProfileId')
     async getPetContacts(@Request() req: any, @Param('petProfileId') petProfileId: string): Promise<Contact[]> {
         return this.contactService.Contacts({
@@ -54,7 +55,7 @@ export class ContactController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getContact/:contactId')
     async getContact(@Param('contactId') contactId: string
     ): Promise<Contact> {
@@ -64,7 +65,7 @@ export class ContactController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('createContact')
     async createContact(
         @Request() req: any,
@@ -93,14 +94,14 @@ export class ContactController {
                 contact_instagram: data.contact_instagram,
                 createdBy: {
                     connect: {
-                        useremail: req.user.useremail
+                        uid: req.user.uid
                     }
                 }
             }
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('connectContactToPet')
     async connectContactToPet(
         @Request() req: any,
@@ -125,7 +126,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('disconnectContactFromPet')
     async disconnectContactFromPet(
         @Request() req: any,
@@ -150,7 +151,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('updateContact')
     async updateContact(
         @Request() req: any,
@@ -182,7 +183,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deleteContact')
     async deleteContact(
         @Request() req: any,
@@ -240,7 +241,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('createPhoneNumber')
     async createPhoneNumber(
         @Request() req: any,
@@ -267,7 +268,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deletePhoneNumber')
     async deletePhoneNumber(
         @Request() req: any,
@@ -284,19 +285,19 @@ export class ContactController {
     }
 
     //Contact Description
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserContactDescriptions')
     async getUserContactDescriptions(@Request() req: any): Promise<ContactDescription[]> {
         return this.contactService.ContactDescriptions({
             where: {
                 created_by: {
-                    useremail: req.user.useremail
+                    uid: req.user.uid
                 }
             }
         });
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('connectContactDescription')
     async connectContactDescription(
         @Request() req: any,
@@ -322,7 +323,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('disconnectContactDescription')
     async disconnectContactDescription(
         @Request() req: any,
@@ -346,7 +347,7 @@ export class ContactController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('createContactDescription')
     async createContactDescription(
         @Request() req: any,
@@ -360,7 +361,7 @@ export class ContactController {
             {
                 created_by: {
                     connect: {
-                        useremail: req.user.useremail
+                        uid: req.user.uid
                     }
                 },
                 Contact: {
@@ -374,7 +375,7 @@ export class ContactController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('updateContactDescription')
     async updateContactDescription(
         @Request() req: any,
@@ -417,7 +418,7 @@ export class ContactController {
 
 
     //Contact Picture
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('uploadContactPicture/:contact_id')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1, },
@@ -481,7 +482,7 @@ export class ContactController {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('deleteContactPicture')
     async deletePicture(
         @Request() req,

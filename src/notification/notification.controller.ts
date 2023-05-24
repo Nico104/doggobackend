@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInte
 import { NotificationService } from './notification.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Notification } from '@prisma/client';
+import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 
 @Controller('notification')
 export class NotificationController {
@@ -9,13 +10,13 @@ export class NotificationController {
         private readonly notificationService: NotificationService,
     ) { }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserNotifications')
     async getUserNotifications(@Request() req: any): Promise<Notification[]> {
         return this.notificationService.Notifications({
             where: {
                 User: {
-                    useremail: req.user.useremail
+                    uid: req.user.uid
                 }
             },
             orderBy: {
@@ -24,13 +25,13 @@ export class NotificationController {
         });
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUnseenUserNotificationsCount')
     async getUnseenUserNotificationsCount(@Request() req: any): Promise<number> {
         let unreadNotification = await this.notificationService.Notifications({
             where: {
                 User: {
-                    useremail: req.user.useremail
+                    uid: req.user.uid
                 },
                 seen: false,
             }
@@ -39,33 +40,33 @@ export class NotificationController {
         return unreadNotification.length;
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('readAllUserNotifications')
     async readAllUserNotifications(
         @Request() req: any,
     ) {
         return this.notificationService.readAllUserNotifications(
             {
-                useremail: req.user.useremail
+                uid: req.user.uid
 
             }
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('seenAllUserNotifications')
     async seenAllUserNotifications(
         @Request() req: any,
     ) {
         return this.notificationService.seenAllUserNotifications(
             {
-                useremail: req.user.useremail
+                uid: req.user.uid
 
             }
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('readNotification')
     async readNotification(
         @Request() req: any,
@@ -86,7 +87,7 @@ export class NotificationController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('unseeNotification')
     async unreadNotification(
         @Request() req: any,
@@ -106,7 +107,7 @@ export class NotificationController {
         );
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Post('seenNotification')
     async seenNotification(
         @Request() req: any,
@@ -128,7 +129,7 @@ export class NotificationController {
 
 
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(TokenIdAuthGuard)
     @Delete('deleteNotification')
     async deleteNotification(
         @Request() req: any,

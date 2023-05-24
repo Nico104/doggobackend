@@ -3,10 +3,14 @@ import { ScanController } from './scan.controller';
 import { ScanService } from './scan.service';
 import { PrismaModule } from 'src/prisma.module';
 import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
+import { MailService } from 'src/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [ScanController],
-  providers: [ScanService, NotificationService]
+  providers: [ScanService, NotificationService,]
 })
 export class ScanModule { }

@@ -114,7 +114,7 @@ export class PetService {
         });
     }
 
-    async isUserPetOwner(params: { profile_id: number; useremail: string; }): Promise<Boolean> {
+    async isUserPetOwner(params: { profile_id: number; uid: string; }): Promise<Boolean> {
         return await this.prisma.pet.count({
             where: {
                 AND: [
@@ -122,8 +122,8 @@ export class PetService {
                         profile_id: params.profile_id
                     },
                     {
-                        pet_profile_user: {
-                            useremail: params.useremail
+                        user: {
+                            uid: params.uid
                         }
                     }
                 ]
@@ -156,7 +156,7 @@ export class PetService {
 
     // }
 
-    async isUserPictureOwner(params: { pet_picture_id: number; useremail: string; }): Promise<Boolean> {
+    async isUserPictureOwner(params: { pet_picture_id: number; uid: string; }): Promise<Boolean> {
         return await this.prisma.petPicture.count({
             where: {
                 AND: [
@@ -165,8 +165,8 @@ export class PetService {
                     },
                     {
                         Pet: {
-                            pet_profile_user: {
-                                useremail: params.useremail,
+                            user: {
+                                uid: params.uid
                             }
                         }
                     },
@@ -175,7 +175,7 @@ export class PetService {
         }) != 0;
     }
 
-    async isUserDocumentOwner(params: { document_id: number; useremail: string; }): Promise<Boolean> {
+    async isUserDocumentOwner(params: { document_id: number; uid: string; }): Promise<Boolean> {
         return await this.prisma.document.count({
             where: {
                 AND: [
@@ -184,8 +184,8 @@ export class PetService {
                     },
                     {
                         Pet: {
-                            pet_profile_user: {
-                                useremail: params.useremail,
+                            user: {
+                                uid: params.uid
                             }
                         }
                     },

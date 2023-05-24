@@ -43,12 +43,12 @@ export class NotificationService {
         });
     }
 
-    async readAllUserNotifications(params: { useremail: string }
+    async readAllUserNotifications(params: { uid: string }
     ) {
         return this.prisma.notification.updateMany({
             where: {
                 User: {
-                    useremail: params.useremail
+                    uid: params.uid
                 },
                 read: false
             },
@@ -59,12 +59,12 @@ export class NotificationService {
         });
     }
 
-    async seenAllUserNotifications(params: { useremail: string }
+    async seenAllUserNotifications(params: { uid: string }
     ) {
         return this.prisma.notification.updateMany({
             where: {
                 User: {
-                    useremail: params.useremail
+                    uid: params.uid
                 },
                 seen: false
             },
@@ -89,7 +89,7 @@ export class NotificationService {
         let deviceMessagingTokens: DeviceMessagingToken[] = await prisma.deviceMessagingToken.findMany({
             where: {
                 User: {
-                    useremail: Notification.userUseremail
+                    uid: Notification.uid
                 }
             }
         });

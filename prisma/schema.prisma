@@ -45,26 +45,59 @@ model Language {
   Country                               Country[]
 }
 
+// model User {
+//   useremail                   String                        @id @unique
+//   userSignUpDateTime          DateTime                      @default(now())
+//   userpassword                String
+//   name                        String                        @default("")
+//   user_pet_profile            Pet[]
+//   Tag                         CollarTag[]
+//   UserLogins                  UserLogins[]
+//   ContactDescription          ContactDescription[]
+//   ChangeEmailVerificationCode ChangeEmailVerificationCode[]
+//   Contact                     Contact[]
+//   DeviceMessagingToken        DeviceMessagingToken[]
+//   Notification                Notification[]
+// }
+
 model User {
-  useremail                   String                        @id @unique
-  userSignUpDateTime          DateTime                      @default(now())
-  userpassword                String
-  name                        String                        @default("")
-  user_pet_profile            Pet[]
-  Tag                         CollarTag[]
-  UserLogins                  UserLogins[]
-  ContactDescription          ContactDescription[]
-  ChangeEmailVerificationCode ChangeEmailVerificationCode[]
-  Contact                     Contact[]
-  DeviceMessagingToken        DeviceMessagingToken[]
-  Notification                Notification[]
+  uid                  String                 @id @unique
+  displayName          String?
+  email                String
+  providerId           String
+  email_verified       Boolean
+  userSignUpDateTime   DateTime               @default(now())
+  // userpassword                String
+  Pet                  Pet[]
+  Tag                  CollarTag[]
+  UserLogins           UserLogins[]
+  ContactDescription   ContactDescription[]
+  // ChangeEmailVerificationCode ChangeEmailVerificationCode[]
+  Contact              Contact[]
+  DeviceMessagingToken DeviceMessagingToken[]
+  Notification         Notification[]
 }
+
+// model User {
+//   uid                   String                        @id @unique
+//   userSignUpDateTime          DateTime                      @default(now())
+//   userpassword                String
+//   name                        String                        @default("")
+//   user_pet_profile            Pet[]
+//   Tag                         CollarTag[]
+//   UserLogins                  UserLogins[]
+//   ContactDescription          ContactDescription[]
+//   ChangeEmailVerificationCode ChangeEmailVerificationCode[]
+//   Contact                     Contact[]
+//   DeviceMessagingToken        DeviceMessagingToken[]
+//   Notification                Notification[]
+// }
 
 //Could become logged in device
 model DeviceMessagingToken {
-  token         String @id
-  User          User   @relation(fields: [userUseremail], references: [useremail], onDelete: Cascade)
-  userUseremail String
+  token String @id
+  User  User   @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  uid   String
 }
 
 model Notification {
@@ -75,30 +108,30 @@ model Notification {
   creationDateTime  DateTime @default(now())
   read              Boolean  @default(false)
   seen              Boolean  @default(false)
-  User              User     @relation(fields: [userUseremail], references: [useremail], onDelete: Cascade)
-  userUseremail     String
+  User              User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  uid               String
 }
 
-model PendingAccount {
-  pendingAccountId Int      @id @default(autoincrement())
-  pendingEmail     String
-  verificationCode Int
-  approved         Boolean  @default(false)
-  isValid          Boolean  @default(true)
-  createdDate      DateTime @default(now())
-}
+// model PendingAccount {
+//   pendingAccountId Int      @id @default(autoincrement())
+//   pendingEmail     String
+//   verificationCode Int
+//   approved         Boolean  @default(false)
+//   isValid          Boolean  @default(true)
+//   createdDate      DateTime @default(now())
+// }
 
-model ChangeEmailVerificationCode {
-  changeEmailVerificationCodeId Int       @id @default(autoincrement())
-  verificationCode              String
-  email                         String
-  sendBy                        User?     @relation(fields: [userUseremail], references: [useremail])
-  userUseremail                 String?
-  isValid                       Boolean   @default(true)
-  createdDateTime               DateTime  @default(now())
-  verifiedDateTime              DateTime?
-  unvalidifiedDateTime          DateTime?
-}
+// model ChangeEmailVerificationCode {
+//   changeEmailVerificationCodeId Int       @id @default(autoincrement())
+//   verificationCode              String
+//   email                         String
+//   sendBy                        User?     @relation(fields: [uid], references: [uid])
+//   uid                 String?
+//   isValid                       Boolean   @default(true)
+//   createdDateTime               DateTime  @default(now())
+//   verifiedDateTime              DateTime?
+//   unvalidifiedDateTime          DateTime?
+// }
 
 // model UserSettings {
 //   username         String   @id
@@ -110,23 +143,23 @@ model ChangeEmailVerificationCode {
 
 model UserLogins {
   userLgoin_id  Int      @id @default(autoincrement())
-  user          User     @relation(fields: [userUseremail], references: [useremail])
-  userUseremail String
+  user          User     @relation(fields: [uid], references: [uid])
+  uid           String
   ipAddress     String?
   loginDateTime DateTime @default(now())
 }
 
 model CollarTag {
-  collarTag_id      String    @id @unique
-  assigned_pet      Pet?      @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id     Int?
-  assigned_user     User?     @relation(fields: [assignedUseremail], references: [useremail])
-  assignedUseremail String?
-  assignedDate      DateTime?
-  activationCode    String    @unique
+  collarTag_id   String    @id @unique
+  assigned_pet   Pet?      @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id  Int?
+  user           User?     @relation(fields: [uid], references: [uid])
+  uid            String?
+  assignedDate   DateTime?
+  activationCode String    @unique
   // CollarTagPersonalisation CollarTagPersonalisation?
-  picturePath       String
-  createdDate       DateTime  @default(now())
+  picturePath    String
+  createdDate    DateTime  @default(now())
 }
 
 // model CollarTagPersonalisation {
@@ -147,9 +180,9 @@ model CollarTag {
 model Pet {
   profile_id                Int                    @id @default(autoincrement())
   profile_creation_DateTime DateTime               @default(now())
-  pet_profile_user          User                   @relation(fields: [pet_profile_username], references: [useremail])
+  user                      User                   @relation(fields: [uid], references: [uid])
   //should be pet_profile_useremail
-  pet_profile_username      String
+  uid                       String
   pet_name                  String
   pet_gender                Gender?
   pet_chip_id               String?
@@ -178,8 +211,8 @@ model Contact {
   // Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   // petProfile_id                            Int
   Pet                                      Pet[]
-  createdBy                                User                @relation(fields: [userUseremail], references: [useremail])
-  userUseremail                            String
+  createdBy                                User                @relation(fields: [uid], references: [uid])
+  uid                                      String
 }
 
 model ContactDescription {
@@ -187,8 +220,8 @@ model ContactDescription {
   contact_description_label             String
   contact_description_hex               String
   Contact                               Contact[]
-  created_by                            User      @relation(fields: [userUseremail], references: [useremail])
-  userUseremail                         String
+  created_by                            User      @relation(fields: [uid], references: [uid])
+  uid                                   String
   contact_description_creation_DateTime DateTime  @default(now())
   contact_description_updated_DateTime  DateTime  @default(now())
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { User, Prisma, PendingAccount, ChangeEmailVerificationCode } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -38,6 +38,20 @@ export class UserService {
         });
     }
 
+    async upsertUser(
+        params: {
+            create: Prisma.UserCreateInput;
+            update: Prisma.UserUpdateInput;
+            where: Prisma.UserWhereUniqueInput;
+        }): Promise<User> {
+        const { create, update, where } = params;
+        return this.prisma.user.upsert({
+            create,
+            update,
+            where,
+        });
+    }
+
     async updateUser(params: {
         where: Prisma.UserWhereUniqueInput;
         data: Prisma.UserUpdateInput;
@@ -60,15 +74,15 @@ export class UserService {
      * @param useremail for the useremail searched for
      * @returns 0 if the Useremail is available, otherweise returns 1
      */
-    async isUseremailAvailable(
-        useremail: string
-    ): Promise<number> {
-        return this.prisma.user.count({
-            where: {
-                useremail: useremail
-            }
-        });
-    }
+    // async isUseremailAvailable(
+    //     useremail: string
+    // ): Promise<number> {
+    //     return this.prisma.user.count({
+    //         where: {
+    //             useremail: useremail
+    //         }
+    //     });
+    // }
 
     /**
      * Cecks if a pssed Code corresponds to the Users Pending Account
@@ -76,137 +90,137 @@ export class UserService {
      * @param code for the code to check
      * @returns false if no Pending Account corresponds, otherwise true
      */
-    async checkPendingAccountCode(
-        useremail: string,
-        code: number
-    ): Promise<Boolean> {
-        //Write in db
-        return await this.prisma.pendingAccount.count({
-            where: {
-                AND: [
-                    {
-                        pendingEmail: useremail
-                    },
-                    {
-                        verificationCode: code
-                    },
-                    {
-                        isValid: true
-                    }
-                ]
-            }
-        }) != 0;
-    }
+    // async checkPendingAccountCode(
+    //     useremail: string,
+    //     code: number
+    // ): Promise<Boolean> {
+    //     //Write in db
+    //     return await this.prisma.pendingAccount.count({
+    //         where: {
+    //             AND: [
+    //                 {
+    //                     pendingEmail: useremail
+    //                 },
+    //                 {
+    //                     verificationCode: code
+    //                 },
+    //                 {
+    //                     isValid: true
+    //                 }
+    //             ]
+    //         }
+    //     }) != 0;
+    // }
 
     /**
      * Creates a new Pending Account record
      * @param useremail the email with which a new User tred to login
      */
-    async createPendingAccount(
-        useremail: string,
-        code: number
-    ): Promise<PendingAccount> {
-        console.log("Email" + useremail);
-        //send mail
-        this.mailService.sendEmailConfirmationCode(useremail, code.toString());
+    // async createPendingAccount(
+    //     useremail: string,
+    //     code: number
+    // ): Promise<PendingAccount> {
+    //     console.log("Email" + useremail);
+    //     //send mail
+    //     this.mailService.sendEmailConfirmationCode(useremail, code.toString());
 
-        //Write in db
-        return this.prisma.pendingAccount.create({
-            data: {
-                pendingEmail: useremail,
-                verificationCode: code
-            }
-        })
-    }
+    //     //Write in db
+    //     return this.prisma.pendingAccount.create({
+    //         data: {
+    //             pendingEmail: useremail,
+    //             verificationCode: code
+    //         }
+    //     })
+    // }
 
-    async devalidatePendingAccount(
-        useremail: string
-    ): Promise<any> {
-        return this.prisma.pendingAccount.updateMany({
-            where: {
-                pendingEmail: useremail
-            },
-            data: {
-                isValid: false
-            }
-        })
-    }
-
-
-    //Change UserEmail
-    async sendVerificationEmail(
-        sendByUseremail: string,
-        email: string,
-        code: string,
-    ): Promise<ChangeEmailVerificationCode> {
-        console.log("Sending mail to " + email);
-        //send mail
-        this.mailService.sendEmailVerificationCode(email, code);
-
-        await this.prisma.changeEmailVerificationCode.updateMany({
-            where: {
-                email: email
-            },
-            data: {
-                isValid: false,
-                unvalidifiedDateTime: new Date(),
-            }
-        });
-
-        return this.prisma.changeEmailVerificationCode.create({
-            data: {
-                email: email,
-                verificationCode: code,
-                sendBy: {
-                    connect: {
-                        useremail: sendByUseremail
-                    }
-                }
-            }
-        });
-    }
-
-    async checkVerificationCode(
-        sendByUseremail: string,
-        email: string,
-        code: string,
-    ): Promise<Boolean> {
-        let isValid: Boolean = await this.prisma.changeEmailVerificationCode.count({
-            where: {
-                AND: [
-                    {
-                        email: email
-                    },
-                    {
-                        sendBy: {
-                            useremail: sendByUseremail
-                        }
-                    },
-                    {
-                        verificationCode: code
-                    },
-                    {
-                        isValid: true
-                    }
-                ]
-            }
-        }) != 0;
-
-        if (isValid) {
-            await this.prisma.changeEmailVerificationCode.updateMany({
-                where: {
-                    email: email
-                },
-                data: {
-                    isValid: false,
-                    verifiedDateTime: new Date(),
-                }
-            });
-        }
+    // async devalidatePendingAccount(
+    //     useremail: string
+    // ): Promise<any> {
+    //     return this.prisma.pendingAccount.updateMany({
+    //         where: {
+    //             pendingEmail: useremail
+    //         },
+    //         data: {
+    //             isValid: false
+    //         }
+    //     })
+    // }
 
 
-        return isValid;
-    }
+    // //Change UserEmail
+    // async sendVerificationEmail(
+    //     sendByUseremail: string,
+    //     email: string,
+    //     code: string,
+    // ): Promise<ChangeEmailVerificationCode> {
+    //     console.log("Sending mail to " + email);
+    //     //send mail
+    //     this.mailService.sendEmailVerificationCode(email, code);
+
+    //     await this.prisma.changeEmailVerificationCode.updateMany({
+    //         where: {
+    //             email: email
+    //         },
+    //         data: {
+    //             isValid: false,
+    //             unvalidifiedDateTime: new Date(),
+    //         }
+    //     });
+
+    //     return this.prisma.changeEmailVerificationCode.create({
+    //         data: {
+    //             email: email,
+    //             verificationCode: code,
+    //             sendBy: {
+    //                 connect: {
+    //                     useremail: sendByUseremail
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
+
+    // async checkVerificationCode(
+    //     sendByUseremail: string,
+    //     email: string,
+    //     code: string,
+    // ): Promise<Boolean> {
+    //     let isValid: Boolean = await this.prisma.changeEmailVerificationCode.count({
+    //         where: {
+    //             AND: [
+    //                 {
+    //                     email: email
+    //                 },
+    //                 {
+    //                     sendBy: {
+    //                         useremail: sendByUseremail
+    //                     }
+    //                 },
+    //                 {
+    //                     verificationCode: code
+    //                 },
+    //                 {
+    //                     isValid: true
+    //                 }
+    //             ]
+    //         }
+    //     }) != 0;
+
+    //     if (isValid) {
+    //         await this.prisma.changeEmailVerificationCode.updateMany({
+    //             where: {
+    //                 email: email
+    //             },
+    //             data: {
+    //                 isValid: false,
+    //                 verifiedDateTime: new Date(),
+    //             }
+    //         });
+    //     }
+
+
+    //     return isValid;
+    // }
 
     //DeviceMessagingToken
 }

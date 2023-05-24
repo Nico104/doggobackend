@@ -49,7 +49,7 @@ export class ScanService {
                 notificationType: "scan",
                 User: {
                     connect: {
-                        useremail: Pet.pet_profile_username
+                        uid: Pet.uid
                     }
                 }
             }
