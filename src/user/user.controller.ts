@@ -334,4 +334,24 @@ export class UserController {
             });
     }
 
+
+    @Post('testIdToken')
+    async testIdToken(
+        @Body() data: {
+            token: string;
+        },
+    ): Promise<any> {
+
+        admin.auth().verifyIdToken(data.token)
+            .then(function (decodedToken) {
+                var uid = decodedToken.uid;
+                // ...
+                console.log("Uid: " + uid);
+            }).catch(function (error) {
+                // Handle error
+                console.log(error);
+            });
+
+    }
+
 }

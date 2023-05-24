@@ -21,8 +21,8 @@ export class AuthService {
         console.log("Compare Result: " + await bcrypt.compare(userpassword, user.userpassword));
         if (user && await bcrypt.compare(userpassword, user.userpassword)) {
             console.log("authenticated also isgut");
-            const { userpassword, ...rest } = user;
-            return rest;
+            const { userpassword, ...result } = user;
+            return result;
         }
 
         return null;

@@ -20,6 +20,7 @@ async function bootstrap() {
   // const path = require('path');
   //TODO dont forget to chnage path in prod
   //https://console.firebase.google.com/u/0/project/finma-dbc70/settings/serviceaccounts/adminsdk
+  //pululu
   var serviceAccount = require("C:/Users/lepups/Documents/Doggostuff/Code/Server/finma-dbc70-firebase-adminsdk-b2ixq-f1d692a70e.json");
   // Initialize the firebase admin app
   // admin.initializeApp({

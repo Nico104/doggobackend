@@ -17,6 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         return {
             useremail: payload.useremail
             //...user  donn konnsch den user mitgeben um olle Daten oder olle de willsch fan User zrugzuschicken
+            // defined in authservice login()
         }
     }
 }
