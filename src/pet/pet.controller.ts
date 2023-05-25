@@ -582,7 +582,7 @@ export class PetController {
         );
     }
 
-    //Language
+    //Country
     @Get('getCountries')
     async getCountries(): Promise<Country[]> {
         return this.petService.Country({});

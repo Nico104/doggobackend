@@ -32,7 +32,8 @@ export class AuthService {
                 update: {
                     email: params.ourdecodedToken.email,
                     email_verified: params.ourdecodedToken.email_verified,
-                    displayName: params.userRecord.displayName,
+                    //Dont update if the Name should be a plattfrom specific thing!
+                    // displayName: params.userRecord.displayName,
                     providerId: params.userRecord.providerData[0].providerId,
                 }
             }

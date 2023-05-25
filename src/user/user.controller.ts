@@ -60,31 +60,25 @@ export class UserController {
     //         }
     //     }
 
-    //     @UseGuards(TokenIdAuthGuard)
-    //     @Get('getName')
-    //     async getName(
-    //         @Request() req,
-    //     ): Promise<String> {
-    //         let _user: User = await this.userService.User(
-    //             {
-    //                 uid: req.user.uid
-    //             }
-    //         );
-
-    //         return _user.name;
-    //     }
+    @UseGuards(TokenIdAuthGuard)
+    @Get('getName')
+    async getName(
+        @Request() req,
+    ): Promise<String> {
+        return req.user.displayName;
+    }
 
     //     /**
     //    * Checcks if a useremail is available
     //    * @param useremail for the useremail searched for
     //    * @returns true if the Useremail is available, otherweise returns false
     //    */
-    //     @Get('isUseremailAvailable/:useremail')
-    //     async isUseremailAvailable(
-    //         @Param('useremail') useremail: string
-    //     ): Promise<boolean> {
-    //         return (Number(await this.userService.isUseremailAvailable(useremail)) == 0);
-    //     }
+    @Get('isUseremailAvailable/:useremail')
+    async isUseremailAvailable(
+        @Param('useremail') useremail: string
+    ): Promise<boolean> {
+        return (Number(await this.userService.isUseremailAvailable(useremail)) == 0);
+    }
 
     //     /**
     //   * Creates a new Pending Account record
@@ -140,29 +134,29 @@ export class UserController {
     //         )
     //     }
 
-    //     //Change Name
-    //     /**
-    //      * Updates the User's Password
-    //      * @param userpassword for the new User password
-    //      */
-    //     @UseGuards(TokenIdAuthGuard)
-    //     @Post('updateName')
-    //     async updateName(
-    //         @Request() req,
-    //         @Body() data: {
-    //             name: string
-    //         }) {
-    //         return this.userService.updateUser(
-    //             {
-    //                 where: {
-    //                     uid: req.user.uid,
-    //                 },
-    //                 data: {
-    //                     name: data.name
-    //                 }
-    //             }
-    //         )
-    //     }
+    //Change Name
+    /**
+     * Updates the User's Password
+     * @param userpassword for the new User password
+     */
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateDisplayName')
+    async updateDisplayName(
+        @Request() req,
+        @Body() data: {
+            displayName: string
+        }) {
+        return this.userService.updateUser(
+            {
+                where: {
+                    uid: req.user.uid,
+                },
+                data: {
+                    displayName: data.displayName
+                }
+            }
+        )
+    }
 
     //     //Change Password
     //     /**

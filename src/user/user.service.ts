@@ -74,15 +74,15 @@ export class UserService {
      * @param useremail for the useremail searched for
      * @returns 0 if the Useremail is available, otherweise returns 1
      */
-    // async isUseremailAvailable(
-    //     useremail: string
-    // ): Promise<number> {
-    //     return this.prisma.user.count({
-    //         where: {
-    //             useremail: useremail
-    //         }
-    //     });
-    // }
+    async isUseremailAvailable(
+        useremail: string
+    ): Promise<number> {
+        return this.prisma.user.count({
+            where: {
+                email: useremail
+            }
+        });
+    }
 
     /**
      * Cecks if a pssed Code corresponds to the Users Pending Account
