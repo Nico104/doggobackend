@@ -267,6 +267,7 @@ model Document {
   document_name String
   document_link String
   document_type DocumentType
+  content_type  String       @default("udf")
 }
 
 model PetPicture {

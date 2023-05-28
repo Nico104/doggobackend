@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber, Country, Document } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -324,6 +324,19 @@ export class PetService {
             }
         });
     }
+
+    //Docuement
+    async updateDocument(params: {
+        where: Prisma.DocumentWhereUniqueInput;
+        data: Prisma.DocumentUpdateInput;
+    }): Promise<Document> {
+        const { where, data } = params;
+        return this.prisma.document.update({
+            data,
+            where,
+        });
+    }
+
 
 
     parseGenderFromString(gender?: string): Gender {

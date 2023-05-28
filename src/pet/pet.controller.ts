@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country } from '@prisma/client';
+import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country, Document } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -205,6 +205,7 @@ export class PetController {
                                     document_link: s3PicturePath,
                                     document_name: data.document_name,
                                     document_type: document_type,
+                                    content_type: data.content_type,
                                 }
                             }
                         }
@@ -269,12 +270,36 @@ export class PetController {
         }
     }
 
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateDocument')
+    async updateDocument(
+        @Request() req: any,
+        @Body() data: {
+            document_id: number;
+            document_name: string;
+            document_type: string;
+        },
+    ): Promise<Document> {
+        return this.petService.updateDocument(
+            {
+                data: {
+                    document_name: data.document_name,
+                    document_type: this.petService.stringToDocumentType(data.document_type),
+                },
+                where: {
+                    document_id: data.document_id
+                }
+            }
+        );
+    }
+
+
 
     //Pet
     @UseGuards(TokenIdAuthGuard)
     @Get('getUserPets')
     async getUserPets(@Request() req: any): Promise<Pet[]> {
-        console.log(req.user);
+        // console.log(req.user);
         return this.petService.Pets(
             {
                 where: {
@@ -300,7 +325,7 @@ export class PetController {
     @UseGuards(TokenIdAuthGuard)
     @Get('getPetsFromContact/:contact_id')
     async getPetsFromContact(@Request() req: any, @Param('contact_id') contact_id: string): Promise<Pet[]> {
-        console.log(req.user);
+        // console.log(req.user);
         return this.petService.Pets(
             {
                 where: {

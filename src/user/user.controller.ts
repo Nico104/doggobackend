@@ -247,57 +247,57 @@ export class UserController {
     //     }
 
 
-    //     ///Messaging FCM
-    //     @UseGuards(TokenIdAuthGuard)
-    //     @Post('connectDeviceTokenToUser')
-    //     async connectDeviceTokenToUser(
-    //         @Request() req,
-    //         @Body() data: {
-    //             token: string
-    //         }) {
-    //         await this.userService.updateUser(
-    //             {
-    //                 where: {
-    //                     uid: req.user.uid,
-    //                 },
-    //                 data: {
-    //                     DeviceMessagingToken: {
-    //                         connectOrCreate: {
-    //                             where: {
-    //                                 token: data.token
-    //                             },
-    //                             create: {
-    //                                 token: data.token,
-    //                             },
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         );
-    //     }
+    ///Messaging FCM
+    @UseGuards(TokenIdAuthGuard)
+    @Post('connectDeviceTokenToUser')
+    async connectDeviceTokenToUser(
+        @Request() req,
+        @Body() data: {
+            token: string
+        }) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    uid: req.user.uid,
+                },
+                data: {
+                    DeviceMessagingToken: {
+                        connectOrCreate: {
+                            where: {
+                                token: data.token
+                            },
+                            create: {
+                                token: data.token,
+                            },
+                        }
+                    }
+                }
+            }
+        );
+    }
 
-    //     @UseGuards(TokenIdAuthGuard)
-    //     @Post('deleteDeviceToken')
-    //     async deleteDeviceTokenToUser(
-    //         @Request() req,
-    //         @Body() data: {
-    //             token: string
-    //         }) {
-    //         await this.userService.updateUser(
-    //             {
-    //                 where: {
-    //                     uid: req.user.uid,
-    //                 },
-    //                 data: {
-    //                     DeviceMessagingToken: {
-    //                         delete: {
-    //                             token: data.token
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         );
-    //     }
+    @UseGuards(TokenIdAuthGuard)
+    @Post('deleteDeviceToken')
+    async deleteDeviceTokenToUser(
+        @Request() req,
+        @Body() data: {
+            token: string
+        }) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    uid: req.user.uid,
+                },
+                data: {
+                    DeviceMessagingToken: {
+                        delete: {
+                            token: data.token
+                        }
+                    }
+                }
+            }
+        );
+    }
 
 
     @Post('testFCM')
