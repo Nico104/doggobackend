@@ -56,7 +56,8 @@ export class PetController {
 
 
             let bucketName: string = 'petpictures';
-            let s3PicturePath: string = bucketName + '/' + 'petpictures/' + filename;
+            let key: string = 'petpictures/';
+            let s3PicturePath: string = bucketName + '/' + key + filename;
 
 
             await this.s3uploadService.resizeAndSaveImageJpeg(directoryPath + picturePath, files.picture[0]['path'], 500, 500, 80);
@@ -66,7 +67,7 @@ export class PetController {
             * Upload Pet Picture to Vultr
             */
             await this.s3uploadService.upload(directoryPath + picturePath,
-                filename, MediaType.Image, 'petpictures/', bucketName);
+                filename, MediaType.Image, key, bucketName);
 
 
             await this.petService.updatePet(
@@ -177,7 +178,8 @@ export class PetController {
             let document_type: DocumentTypeEnum = this.petService.stringToDocumentType(data.document_type);
 
             let bucketName: string = 'petdocuments';
-            let s3PicturePath: string = bucketName + '/' + this.petService.documentTypeToString(document_type) + '/' + filename;
+            let key: string = 'documents/';
+            let s3PicturePath: string = bucketName + '/' + key + filename;
 
 
 
@@ -191,7 +193,7 @@ export class PetController {
                     // s3PicturePath += ".pdf";
                 }
                 await this.s3uploadService.upload(files.document[0]['path'],
-                    filename, content_type, this.petService.documentTypeToString(document_type) + '/', bucketName);
+                    filename, content_type, key, bucketName);
 
 
                 await this.petService.updatePet(
@@ -289,6 +291,18 @@ export class PetController {
                 where: {
                     document_id: data.document_id
                 }
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Get('getPetDocuments/:profile_id')
+    async getPetDocuments(@Request() req: any, @Param('profile_id') profile_id: string): Promise<Document[]> {
+        return this.petService.Documents(
+            {
+                where: {
+                    petProfile_id: Number(profile_id)
+                },
             }
         );
     }

@@ -326,6 +326,23 @@ export class PetService {
     }
 
     //Docuement
+    async Documents(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.DocumentWhereUniqueInput;
+        where?: Prisma.DocumentWhereInput;
+        orderBy?: Prisma.DocumentOrderByWithRelationInput;
+    }): Promise<Document[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.document.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+        });
+    }
+
     async updateDocument(params: {
         where: Prisma.DocumentWhereUniqueInput;
         data: Prisma.DocumentUpdateInput;
