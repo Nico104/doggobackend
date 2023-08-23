@@ -23,6 +23,12 @@ export class TagService {
         });
     }
 
+    async Tag(CollarTagWhereUniqueInput: Prisma.CollarTagWhereUniqueInput): Promise<CollarTag> {
+        return this.prisma.collarTag.findUnique({
+            where: CollarTagWhereUniqueInput
+        });
+    }
+
     async createTag(data: Prisma.CollarTagCreateInput): Promise<CollarTag> {
         return this.prisma.collarTag.create({
             data,

@@ -105,6 +105,14 @@ export class TagController {
     }
 
     @UseGuards(TokenIdAuthGuard)
+    @Get('getTag/:tagid')
+    async getTag(@Param('tagid') tagid: string): Promise<CollarTag> {
+        return this.tagService.Tag({
+            collarTag_id: tagid
+        });
+    }
+
+    @UseGuards(TokenIdAuthGuard)
     @Get('getUserProfileTags/:petProfileId')
     async getUserProfileTags(
         @Request() req: any,
