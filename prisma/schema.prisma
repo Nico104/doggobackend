@@ -40,6 +40,7 @@ model Language {
   language_key                          String                 @id @unique
   language_label                        String
   language_isAvailableForAppTranslation Boolean                @default(false)
+  langauge_flag_image_path              String                 @default("flags/langauge/english_flag.png")
   Description                           Description[]
   ImportantInformation                  ImportantInformation[]
   Country                               Country[]
