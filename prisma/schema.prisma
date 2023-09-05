@@ -19,13 +19,13 @@ enum LetterStyle {
   April3
 }
 
-enum DocumentType {
-  Allergies
-  Dewormers
-  Health
-  Medicine
-  Noid
-}
+// enum DocumentType {
+//   Allergies
+//   Dewormers
+//   Health
+//   Medicine
+//   Noid
+// }
 
 model Country {
   country_key             String        @id @unique
@@ -38,6 +38,7 @@ model Country {
 
 model Language {
   language_key                          String                 @id @unique
+  language_key_translate                String                 @default("EN")
   language_label                        String
   language_isAvailableForAppTranslation Boolean                @default(false)
   langauge_flag_image_path              String                 @default("flags/langauge/english_flag.png")
@@ -262,13 +263,13 @@ model PhoneNumber {
 }
 
 model Document {
-  document_id   Int          @id @default(autoincrement())
-  Pet           Pet          @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  document_id   Int    @id @default(autoincrement())
+  Pet           Pet    @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id Int
   document_name String
   document_link String
-  document_type DocumentType
-  content_type  String       @default("udf")
+  // document_type DocumentType
+  content_type  String @default("udf")
 }
 
 model PetPicture {

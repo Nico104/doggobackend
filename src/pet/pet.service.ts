@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, DocumentType as DocumentTypeEnum, PhoneNumber, Country, Document } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -325,6 +325,24 @@ export class PetService {
         });
     }
 
+    //Picture
+    async PetPictures(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.PetPictureWhereUniqueInput;
+        where?: Prisma.PetPictureWhereInput;
+        orderBy?: Prisma.PetPictureOrderByWithRelationInput;
+    }): Promise<PetPicture[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.petPicture.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+        });
+    }
+
     //Docuement
     async Documents(params: {
         skip?: number;
@@ -370,33 +388,33 @@ export class PetService {
         }
     }
 
-    stringToDocumentType(document_type: string): DocumentTypeEnum {
-        switch (document_type.toLowerCase()) {
-            case "allergies":
-                return DocumentTypeEnum.Allergies;
-            case "dewormers":
-                return DocumentTypeEnum.Dewormers;
-            case "health":
-                return DocumentTypeEnum.Health;
-            case "medicine":
-                return DocumentTypeEnum.Medicine;
-            default:
-                return DocumentTypeEnum.Noid;
-        }
-    }
+    // stringToDocumentType(document_type: string): DocumentTypeEnum {
+    //     switch (document_type.toLowerCase()) {
+    //         case "allergies":
+    //             return DocumentTypeEnum.Allergies;
+    //         case "dewormers":
+    //             return DocumentTypeEnum.Dewormers;
+    //         case "health":
+    //             return DocumentTypeEnum.Health;
+    //         case "medicine":
+    //             return DocumentTypeEnum.Medicine;
+    //         default:
+    //             return DocumentTypeEnum.Noid;
+    //     }
+    // }
 
-    documentTypeToString(document_type: DocumentTypeEnum): string {
-        switch (document_type) {
-            case DocumentTypeEnum.Allergies:
-                return "allergies";
-            case DocumentTypeEnum.Dewormers:
-                return "dewormers";
-            case DocumentTypeEnum.Health:
-                return "health";
-            case DocumentTypeEnum.Medicine:
-                return "medicine";
-            default:
-                return "noid";
-        }
-    }
+    // documentTypeToString(document_type: DocumentTypeEnum): string {
+    //     switch (document_type) {
+    //         case DocumentTypeEnum.Allergies:
+    //             return "allergies";
+    //         case DocumentTypeEnum.Dewormers:
+    //             return "dewormers";
+    //         case DocumentTypeEnum.Health:
+    //             return "health";
+    //         case DocumentTypeEnum.Medicine:
+    //             return "medicine";
+    //         default:
+    //             return "noid";
+    //     }
+    // }
 }

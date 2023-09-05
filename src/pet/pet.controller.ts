@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, DocumentType as DocumentTypeEnum, PhoneNumber, Country, Document } from '@prisma/client';
+import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -142,6 +142,18 @@ export class PetController {
         }
     }
 
+    @UseGuards(TokenIdAuthGuard)
+    @Get('getPetPictures/:profile_id')
+    async getPetPictures(@Request() req: any, @Param('profile_id') profile_id: string): Promise<PetPicture[]> {
+        return this.petService.PetPictures(
+            {
+                where: {
+                    petProfile_id: Number(profile_id)
+                },
+            }
+        );
+    }
+
 
     //Picture Upload
 
@@ -175,7 +187,7 @@ export class PetController {
 
             let filename: string = files.document[0]['filename'];
 
-            let document_type: DocumentTypeEnum = this.petService.stringToDocumentType(data.document_type);
+            // let document_type: DocumentTypeEnum = this.petService.stringToDocumentType(data.document_type);
 
             let bucketName: string = 'petdocuments';
             let key: string = 'documents/';
@@ -206,7 +218,7 @@ export class PetController {
                                 create: {
                                     document_link: s3PicturePath,
                                     document_name: data.document_name,
-                                    document_type: document_type,
+                                    // document_type: document_type,
                                     content_type: data.content_type,
                                 }
                             }
@@ -286,7 +298,7 @@ export class PetController {
             {
                 data: {
                     document_name: data.document_name,
-                    document_type: this.petService.stringToDocumentType(data.document_type),
+                    // document_type: this.petService.stringToDocumentType(data.document_type),
                 },
                 where: {
                     document_id: data.document_id
@@ -606,8 +618,8 @@ export class PetController {
         @Body() data: {
             language_key: string;
             language_label: string;
-            // language_image_path: string;
-            // language_country: string;
+            language_flag_image_path: string;
+            language_key_translate: string;
             // language_country_prefix: string;
             language_isAvailableForAppTranslation: boolean;
         },
@@ -617,6 +629,8 @@ export class PetController {
                 language_key: data.language_key,
                 language_label: data.language_label,
                 language_isAvailableForAppTranslation: data.language_isAvailableForAppTranslation,
+                langauge_flag_image_path: data.language_flag_image_path,
+                language_key_translate: data.language_key_translate,
             }
         );
     }
