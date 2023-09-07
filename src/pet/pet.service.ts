@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture } from '@prisma/client';
+import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation, HealthIssueType } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -372,6 +372,131 @@ export class PetService {
         });
     }
 
+
+    //Behaviour
+    async BehaviourInformation(params: {
+        where?: Prisma.BehaviourInformationWhereUniqueInput;
+    }): Promise<BehaviourInformation> {
+        const { where } = params;
+        return this.prisma.behaviourInformation.findUnique({
+            where,
+        });
+    }
+
+    async updateBehaviourInformation(params: {
+        where: Prisma.BehaviourInformationWhereUniqueInput;
+        data: Prisma.BehaviourInformationUpdateInput;
+    }): Promise<BehaviourInformation> {
+        const { where, data } = params;
+        return this.prisma.behaviourInformation.update({
+            data,
+            where,
+        });
+    }
+
+    //Medical
+    async MedicalInformation(params: {
+        where?: Prisma.MedicalInformationWhereUniqueInput;
+    }): Promise<MedicalInformation> {
+        const { where } = params;
+        return this.prisma.medicalInformation.findUnique({
+            where,
+            include: {
+                health_issues: {
+                    include: {
+                        linked_document: true
+                    }
+                }
+            }
+        });
+    }
+
+    async updateMedicalInformation(params: {
+        where: Prisma.MedicalInformationWhereUniqueInput;
+        data: Prisma.MedicalInformationUpdateInput;
+    }): Promise<MedicalInformation> {
+        const { where, data } = params;
+        return this.prisma.medicalInformation.update({
+            data,
+            where,
+        });
+    }
+
+    //HealthIssues
+    async HealthIssues(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.HealthIssueWhereUniqueInput;
+        where?: Prisma.HealthIssueWhereInput;
+        orderBy?: Prisma.HealthIssueOrderByWithRelationInput;
+    }): Promise<HealthIssue[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.healthIssue.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+            include: {
+                linked_document: true
+            }
+        });
+    }
+
+    async upsertHealthIssue(params: {
+        create: Prisma.HealthIssueCreateInput;
+        where: Prisma.HealthIssueWhereUniqueInput;
+        update: Prisma.HealthIssueUpdateInput;
+    }): Promise<HealthIssue> {
+        const { create, where, update } = params;
+        return this.prisma.healthIssue.upsert({
+            create,
+            update,
+            where,
+        });
+    }
+
+    async updateHealthIssue(params: {
+        where: Prisma.HealthIssueWhereUniqueInput;
+        data: Prisma.HealthIssueUpdateInput;
+    }): Promise<HealthIssue> {
+        const { where, data } = params;
+        return this.prisma.healthIssue.update({
+            data,
+            where,
+        });
+    }
+
+    async deleteHealthIssue(params: {
+        where: Prisma.HealthIssueWhereUniqueInput;
+    }): Promise<HealthIssue> {
+        const { where } = params;
+        return this.prisma.healthIssue.delete({
+            where,
+        });
+    }
+
+    stringToHealthIssueType(health_issue_type: string): HealthIssueType {
+        switch (health_issue_type.toLowerCase()) {
+            case "allergies":
+                return HealthIssueType.Allergies;
+            case "medication":
+                return HealthIssueType.Medication;
+            default:
+                return HealthIssueType.Allergies;
+        }
+    }
+
+    healthIssueTypeToString(health_issue_type: HealthIssueType): string {
+        switch (health_issue_type) {
+            case HealthIssueType.Allergies:
+                return "Allergies";
+            case HealthIssueType.Medication:
+                return "Medication";
+            default:
+                return "Allergies";
+        }
+    }
 
 
     parseGenderFromString(gender?: string): Gender {

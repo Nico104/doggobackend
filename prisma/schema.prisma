@@ -19,6 +19,11 @@ enum LetterStyle {
   April3
 }
 
+enum HealthIssueType {
+  Allergies
+  Medication
+}
+
 // enum DocumentType {
 //   Allergies
 //   Dewormers
@@ -196,6 +201,10 @@ model Pet {
   pet_profile_scans         Scan[]
   Tag                       CollarTag[]
   Contact                   Contact[]
+  MedicalInformation        MedicalInformation?
+  // medical_information_id    Int
+  BehaviourInformation      BehaviourInformation?
+  // behaviour_information_id  Int
 }
 
 model Contact {
@@ -262,14 +271,45 @@ model PhoneNumber {
   contactContact_id   Int?
 }
 
+model HealthIssue {
+  health_issue_id                          Int                @id @default(autoincrement())
+  health_issue_name                        String
+  health_issue_type                        HealthIssueType
+  linked_document                          Document?          @relation(fields: [documentDocument_id], references: [document_id])
+  documentDocument_id                      Int?
+  // health_issue_text                        String
+  MedicalInformation                       MedicalInformation @relation(fields: [medicalInformationMedical_information_id], references: [medical_information_id])
+  medicalInformationMedical_information_id Int
+}
+
+model MedicalInformation {
+  medical_information_id Int           @id @default(autoincrement())
+  Pet                    Pet           @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  petProfile_id          Int           @unique
+  health_issues          HealthIssue[]
+  sterilized             Boolean?
+}
+
+model BehaviourInformation {
+  behaviour_information_id Int      @id @default(autoincrement())
+  Pet                      Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  petProfile_id            Int      @unique
+  good_with_kids           Boolean?
+  good_with_cats           Boolean?
+  good_with_dogs           Boolean?
+  good_with_cars           Boolean?
+  good_with_strangers      Boolean?
+}
+
 model Document {
-  document_id   Int    @id @default(autoincrement())
-  Pet           Pet    @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  document_id   Int           @id @default(autoincrement())
+  Pet           Pet           @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id Int
   document_name String
   document_link String
   // document_type DocumentType
-  content_type  String @default("udf")
+  content_type  String        @default("udf")
+  HealthIssue   HealthIssue[]
 }
 
 model PetPicture {

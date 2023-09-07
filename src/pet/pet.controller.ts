@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture } from '@prisma/client';
+import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture, BehaviourInformation, MedicalInformation, HealthIssue } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -400,6 +400,12 @@ export class PetController {
                 // pet_owner_facebook: data.pet_owner_facebook,
                 // pet_owner_instagram: data.pet_owner_instagram,
                 pet_is_Lost: Boolean(data.pet_is_Lost),
+                BehaviourInformation: {
+                    create: {}
+                },
+                MedicalInformation: {
+                    create: {}
+                }
             }
         );
     }
@@ -464,7 +470,6 @@ export class PetController {
                 },
             );
         }
-
     }
 
     //Description
@@ -509,7 +514,6 @@ export class PetController {
                 }
             );
         }
-
     }
 
     @UseGuards(TokenIdAuthGuard)
@@ -689,6 +693,186 @@ export class PetController {
             profileId: data.profileId,
             collarTagId: data.collarTagId,
         });
+    }
+
+    //Behaviour
+    @Get('getBehaviourInformation/:profile_id')
+    async getBehaviourInformation(@Param('profile_id') profile_id: string
+    ): Promise<BehaviourInformation> {
+        return this.petService.BehaviourInformation(
+            {
+                where: {
+                    petProfile_id: Number(profile_id)
+                }
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateBehaviourInformation')
+    async updateBehaviourInformation(
+        @Request() req: any,
+        @Body() data: {
+            petProfile_id: number;
+            good_with_cars: boolean;
+            good_with_kids: boolean;
+            good_with_cats: boolean;
+            good_with_dogs: boolean;
+            good_with_strangers: boolean;
+        },
+    ): Promise<BehaviourInformation> {
+        return this.petService.updateBehaviourInformation(
+            {
+                data: {
+                    good_with_cars: data.good_with_cars,
+                    good_with_dogs: data.good_with_dogs,
+                    good_with_cats: data.good_with_cats,
+                    good_with_kids: data.good_with_kids,
+                    good_with_strangers: data.good_with_strangers,
+                },
+                where: {
+                    petProfile_id: data.petProfile_id
+                }
+            }
+        );
+    }
+
+
+    //Medical
+    @Get('getMedicalInformation/:profile_id')
+    async getMedicalInformation(@Param('profile_id') profile_id: string
+    ): Promise<MedicalInformation> {
+        return this.petService.MedicalInformation(
+            {
+                where: {
+                    petProfile_id: Number(profile_id)
+                }
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateMedicalInformation')
+    async updateMedicalInformation(
+        @Request() req: any,
+        @Body() data: {
+            medical_information_id: number;
+            sterilized: boolean;
+        },
+    ): Promise<MedicalInformation> {
+        return this.petService.updateMedicalInformation(
+            {
+                data: {
+                    sterilized: data.sterilized
+                },
+                where: {
+                    // petProfile_id: data.petProfile_id
+                    medical_information_id: data.medical_information_id
+                }
+            }
+        );
+    }
+
+    //HealthIssues
+    // @UseGuards(TokenIdAuthGuard)
+    @Get('getHealthIssues/:medical_information_id')
+    async getHealthIssues(@Request() req: any, @Param('medical_information_id') medical_information_id: string): Promise<HealthIssue[]> {
+        return this.petService.HealthIssues(
+            {
+                where: {
+                    medicalInformationMedical_information_id: Number(medical_information_id)
+                },
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('upsertHealthIssue')
+    async upsertHealthIssue(
+        @Request() req: any,
+        @Body() data: {
+            health_issue_id: number;
+            health_issue_name: string;
+            health_issue_type: string;
+            medical_information_id: number;
+        },
+    ): Promise<HealthIssue> {
+        return this.petService.upsertHealthIssue(
+            {
+                create: {
+                    health_issue_name: data.health_issue_name,
+                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                    MedicalInformation: {
+                        connect: {
+                            medical_information_id: data.medical_information_id
+                        }
+                    },
+                },
+                update: {
+                    health_issue_name: data.health_issue_name,
+                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                },
+                where: {
+                    health_issue_id: data.health_issue_id
+                },
+            }
+        );
+    }
+
+    @Post('linkDocumentToHealthIssue')
+    async linkDocumentToHealthIssue(
+        @Body() data: {
+            health_issue_id: number;
+            document_id: number;
+        },
+    ): Promise<HealthIssue> {
+        return this.petService.updateHealthIssue({
+            where: {
+                health_issue_id: data.health_issue_id,
+            },
+            data: {
+                linked_document: {
+                    connect: {
+                        document_id: data.document_id
+                    }
+                }
+            }
+        });
+    }
+
+    @Post('unlinkDocumentFromHealthIssue')
+    async unlinkDocumentFromHealthIssue(
+        @Body() data: {
+            health_issue_id: number;
+        },
+    ): Promise<HealthIssue> {
+        return this.petService.updateHealthIssue({
+            where: {
+                health_issue_id: data.health_issue_id,
+            },
+            data: {
+                linked_document: {
+                    disconnect: true
+                }
+            }
+        });
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Delete('deleteHealthIssue')
+    async deleteHealthIssue(
+        @Request() req: any,
+        @Body() data: {
+            health_issue_id: number;
+        },
+    ): Promise<HealthIssue> {
+        return this.petService.deleteHealthIssue(
+            {
+                where: {
+                    health_issue_id: data.health_issue_id
+                }
+            },
+        );
     }
 
 }
