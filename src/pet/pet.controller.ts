@@ -437,6 +437,7 @@ export class PetController {
             // pet_owner_facebook?: string | null;
             // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
+            pet_is_lost_text: string;
         },
     ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
@@ -455,6 +456,7 @@ export class PetController {
                         // pet_owner_facebook: data.pet_owner_facebook,
                         // pet_owner_instagram: data.pet_owner_instagram,
                         pet_is_Lost: data.pet_is_Lost,
+                        pet_is_lost_text: data.pet_is_lost_text,
                     },
                     where: {
                         profile_id: data.profile_id
