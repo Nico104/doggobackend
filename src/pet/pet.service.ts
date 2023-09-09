@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, ImportantInformation, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation, HealthIssueType } from '@prisma/client';
+import { Description, Gender, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation, HealthIssueType } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -17,11 +17,12 @@ export class PetService {
                         description_language: true
                     }
                 },
-                pet_important_information: {
-                    include: {
-                        important_information_language: true
-                    }
-                },
+                // pet_important_information: {
+                //     include: {
+                //         important_information_language: true
+                //     }
+                // },
+                // pet_important_information: true,
                 pet_documents: true,
                 pet_pictures: true,
                 Tag: true,
@@ -64,11 +65,12 @@ export class PetService {
                         description_language: true
                     }
                 },
-                pet_important_information: {
-                    include: {
-                        important_information_language: true
-                    }
-                },
+                // pet_important_information: {
+                //     include: {
+                //         important_information_language: true
+                //     }
+                // },
+                // pet_important_information: true,
                 pet_documents: true,
                 Contact: {
                     include: {
@@ -87,6 +89,8 @@ export class PetService {
                 pet_pictures: true,
                 Tag: true,
                 pet_profile_scans: true,
+                BehaviourInformation: true,
+                MedicalInformation: true,
             }
         });
     }
@@ -218,24 +222,24 @@ export class PetService {
     }
 
     //Important Information
-    async upsertImportantInformation(params: {
-        create: Prisma.ImportantInformationCreateInput;
-        update: Prisma.ImportantInformationUpdateInput;
-        where: Prisma.ImportantInformationWhereUniqueInput;
-    }): Promise<ImportantInformation> {
-        const { create, update, where } = params;
-        return this.prisma.importantInformation.upsert({
-            create,
-            update,
-            where,
-        });
-    }
+    // async upsertImportantInformation(params: {
+    //     create: Prisma.ImportantInformationCreateInput;
+    //     update: Prisma.ImportantInformationUpdateInput;
+    //     where: Prisma.ImportantInformationWhereUniqueInput;
+    // }): Promise<ImportantInformation> {
+    //     const { create, update, where } = params;
+    //     return this.prisma.importantInformation.upsert({
+    //         create,
+    //         update,
+    //         where,
+    //     });
+    // }
 
-    async deleteImportantInformation(where: Prisma.ImportantInformationWhereUniqueInput): Promise<ImportantInformation> {
-        return this.prisma.importantInformation.delete({
-            where,
-        });
-    }
+    // async deleteImportantInformation(where: Prisma.ImportantInformationWhereUniqueInput): Promise<ImportantInformation> {
+    //     return this.prisma.importantInformation.delete({
+    //         where,
+    //     });
+    // }
 
     //Language
     async Language(params: {
@@ -361,6 +365,15 @@ export class PetService {
         });
     }
 
+    async Document(params: {
+        where?: Prisma.DocumentWhereUniqueInput;
+    }): Promise<Document> {
+        const { where } = params;
+        return this.prisma.document.findUnique({
+            where,
+        });
+    }
+
     async updateDocument(params: {
         where: Prisma.DocumentWhereUniqueInput;
         data: Prisma.DocumentUpdateInput;
@@ -453,6 +466,15 @@ export class PetService {
             create,
             update,
             where,
+        });
+    }
+
+    async createHealthIssue(params: {
+        data: Prisma.HealthIssueCreateInput;
+    }): Promise<HealthIssue> {
+        const { data } = params;
+        return this.prisma.healthIssue.create({
+            data,
         });
     }
 

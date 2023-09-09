@@ -42,13 +42,12 @@ model Country {
 }
 
 model Language {
-  language_key                          String                 @id @unique
-  language_key_translate                String                 @default("EN")
+  language_key                          String        @id @unique
+  language_key_translate                String        @default("EN")
   language_label                        String
-  language_isAvailableForAppTranslation Boolean                @default(false)
-  langauge_flag_image_path              String                 @default("flags/langauge/english_flag.png")
+  language_isAvailableForAppTranslation Boolean       @default(false)
+  langauge_flag_image_path              String        @default("flags/langauge/english_flag.png")
   Description                           Description[]
-  ImportantInformation                  ImportantInformation[]
   Country                               Country[]
 }
 
@@ -185,25 +184,27 @@ model CollarTag {
 // }
 
 model Pet {
-  profile_id                Int                    @id @default(autoincrement())
-  profile_creation_DateTime DateTime               @default(now())
-  user                      User                   @relation(fields: [uid], references: [uid])
+  profile_id                Int           @id @default(autoincrement())
+  profile_creation_DateTime DateTime      @default(now())
+  user                      User          @relation(fields: [uid], references: [uid])
   //should be pet_profile_useremail
   uid                       String
   pet_name                  String
   pet_gender                Gender?
   pet_chip_id               String?
   pet_description           Description[]
-  pet_important_information ImportantInformation[]
-  pet_documents             Document[]
-  pet_pictures              PetPicture[]
-  pet_is_Lost               Boolean
-  pet_profile_scans         Scan[]
-  Tag                       CollarTag[]
-  Contact                   Contact[]
-  MedicalInformation        MedicalInformation?
+  // pet_important_information ImportantInformation?
+
+  pet_documents        Document[]
+  pet_pictures         PetPicture[]
+  pet_is_Lost          Boolean
+  pet_is_lost_text     String                @default("")
+  pet_profile_scans    Scan[]
+  Tag                  CollarTag[]
+  Contact              Contact[]
+  MedicalInformation   MedicalInformation?
   // medical_information_id    Int
-  BehaviourInformation      BehaviourInformation?
+  BehaviourInformation BehaviourInformation?
   // behaviour_information_id  Int
 }
 
@@ -247,15 +248,12 @@ model Description {
   @@id([petProfile_id, description_language_key])
 }
 
-model ImportantInformation {
-  Pet                                Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
-  petProfile_id                      Int
-  important_information_text         String
-  important_information_language     Language @relation(fields: [important_information_language_key], references: [language_key])
-  important_information_language_key String
-
-  @@id([petProfile_id, important_information_language_key])
-}
+// model ImportantInformation {
+//   important_information_id   Int    @id @default(autoincrement())
+//   Pet                        Pet    @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+//   petProfile_id              Int    @unique
+//   important_information_text String
+// }
 
 model PhoneNumber {
   phone_number_id       Int    @id @default(autoincrement())

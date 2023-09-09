@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet, Description, ImportantInformation, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture, BehaviourInformation, MedicalInformation, HealthIssue } from '@prisma/client';
+import { Pet, Description, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture, BehaviourInformation, MedicalInformation, HealthIssue } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -319,6 +319,18 @@ export class PetController {
         );
     }
 
+    @UseGuards(TokenIdAuthGuard)
+    @Get('getDocument/:document_id')
+    async getDocument(@Request() req: any, @Param('document_id') document_id: string): Promise<Document> {
+        return this.petService.Document(
+            {
+                where: {
+                    document_id: Number(document_id)
+                },
+            }
+        );
+    }
+
 
 
     //Pet
@@ -542,74 +554,66 @@ export class PetController {
     }
 
     //ImportantInformation
-    @UseGuards(TokenIdAuthGuard)
-    @Post('upsertImportantInformation')
-    async upsertImportantInformation(
-        @Request() req: any,
-        @Body() data: {
-            petProfile_id: number;
-            language_key: string;
-            important_information_text: string;
-        },
-    ): Promise<ImportantInformation> {
-        if (await this.petService.isUserPetOwner({
-            profile_id: data.petProfile_id,
-            uid: req.user.uid,
-        })) {
-            return this.petService.upsertImportantInformation(
-                {
-                    create: {
-                        important_information_language: {
-                            connect: {
-                                language_key: data.language_key
-                            }
-                        },
-                        Pet: {
-                            connect: {
-                                profile_id: data.petProfile_id
-                            }
-                        },
-                        important_information_text: data.important_information_text
-                    },
-                    update: {
-                        important_information_text: data.important_information_text
-                    },
-                    where: {
-                        petProfile_id_important_information_language_key: {
-                            important_information_language_key: data.language_key,
-                            petProfile_id: data.petProfile_id
-                        }
-                    },
-                }
-            );
-        }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Post('upsertImportantInformation')
+    // async upsertImportantInformation(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         important_information_id: number;
+    //         petProfile_id: number;
+    //         important_information_text: string;
+    //     },
+    // ): Promise<ImportantInformation> {
+    //     if (await this.petService.isUserPetOwner({
+    //         profile_id: data.petProfile_id,
+    //         uid: req.user.uid,
+    //     })) {
+    //         return this.petService.upsertImportantInformation(
+    //             {
+    //                 create: {
+    //                     Pet: {
+    //                         connect: {
+    //                             profile_id: data.petProfile_id
+    //                         }
+    //                     },
+    //                     important_information_text: data.important_information_text
+    //                 },
+    //                 update: {
+    //                     important_information_text: data.important_information_text
+    //                 },
+    //                 where: {
+    //                     important_information_id: data.important_information_id
+    //                 },
+    //             }
+    //         );
+    //     }
 
-    }
+    // }
 
-    @UseGuards(TokenIdAuthGuard)
-    @Delete('deleteImportantInformation')
-    async deleteImportantInformation(
-        @Request() req: any,
-        @Body() data: {
-            petProfile_id: number;
-            language_key: string;
-        },
-    ): Promise<ImportantInformation> {
-        if (await this.petService.isUserPetOwner({
-            profile_id: data.petProfile_id,
-            uid: req.user.uid,
-        })) {
-            return this.petService.deleteImportantInformation(
-                {
-                    petProfile_id_important_information_language_key: {
-                        important_information_language_key: data.language_key,
-                        petProfile_id: data.petProfile_id
-                    }
-                },
-            );
-        }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Delete('deleteImportantInformation')
+    // async deleteImportantInformation(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         petProfile_id: number;
+    //         language_key: string;
+    //     },
+    // ): Promise<ImportantInformation> {
+    //     if (await this.petService.isUserPetOwner({
+    //         profile_id: data.petProfile_id,
+    //         uid: req.user.uid,
+    //     })) {
+    //         return this.petService.deleteImportantInformation(
+    //             {
+    //                 petProfile_id_important_information_language_key: {
+    //                     important_information_language_key: data.language_key,
+    //                     petProfile_id: data.petProfile_id
+    //                 }
+    //             },
+    //         );
+    //     }
 
-    }
+    // }
 
     //Language
     @Get('getLanguages')
@@ -787,8 +791,8 @@ export class PetController {
     }
 
     @UseGuards(TokenIdAuthGuard)
-    @Post('upsertHealthIssue')
-    async upsertHealthIssue(
+    @Post('updateHealthIssue')
+    async updateHealthIssue(
         @Request() req: any,
         @Body() data: {
             health_issue_id: number;
@@ -797,9 +801,32 @@ export class PetController {
             medical_information_id: number;
         },
     ): Promise<HealthIssue> {
-        return this.petService.upsertHealthIssue(
+        return this.petService.updateHealthIssue(
             {
-                create: {
+                data: {
+                    health_issue_name: data.health_issue_name,
+                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                },
+                where: {
+                    health_issue_id: data.health_issue_id
+                },
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('createHealthIssue')
+    async createHealthIssue(
+        @Request() req: any,
+        @Body() data: {
+            health_issue_name: string;
+            health_issue_type: string;
+            medical_information_id: number;
+        },
+    ): Promise<HealthIssue> {
+        return this.petService.createHealthIssue(
+            {
+                data: {
                     health_issue_name: data.health_issue_name,
                     health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
                     MedicalInformation: {
@@ -807,13 +834,6 @@ export class PetController {
                             medical_information_id: data.medical_information_id
                         }
                     },
-                },
-                update: {
-                    health_issue_name: data.health_issue_name,
-                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
-                },
-                where: {
-                    health_issue_id: data.health_issue_id
                 },
             }
         );
