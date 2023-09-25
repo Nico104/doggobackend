@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Contact, ContactDescription, PhoneNumber, Prisma } from '@prisma/client';
+import { Contact, PhoneNumber, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -30,7 +30,8 @@ export class ContactService {
                         }
                     }
                 },
-                contact_description: true,
+                // contact_description: true,
+                languages_spoken: true,
             }
         });
     }
@@ -50,7 +51,8 @@ export class ContactService {
                         },
                     }
                 },
-                contact_description: true,
+                // contact_description: true,
+                languages_spoken: true,
             }
         });
     }
@@ -116,44 +118,83 @@ export class ContactService {
         });
     }
 
+    //Languages Spoken
+
+    async connectLanguageSpoken(data: {
+        languageKey: string,
+        contactId: number,
+    }): Promise<Contact> {
+        return this.prisma.contact.update({
+            where: {
+                contact_id: data.contactId,
+            },
+            data: {
+                languages_spoken: {
+                    connect: {
+                        language_key: data.languageKey
+                    }
+                }
+            },
+        });
+    }
+
+    async disconnectLanguageSpoken(data: {
+        languageKey: string,
+        contactId: number,
+    }): Promise<Contact> {
+        return this.prisma.contact.update({
+            where: {
+                contact_id: data.contactId,
+            },
+            data: {
+                languages_spoken: {
+                    disconnect: {
+                        language_key: data.languageKey
+                    }
+                }
+            },
+        });
+    }
+
+
     //Contact Description
-    async ContactDescriptions(params: {
-        skip?: number;
-        take?: number;
-        cursor?: Prisma.ContactDescriptionWhereUniqueInput;
-        where?: Prisma.ContactDescriptionWhereInput;
-        orderBy?: Prisma.ContactDescriptionOrderByWithRelationInput;
-    }): Promise<ContactDescription[]> {
-        const { skip, take, cursor, where, orderBy, } = params;
-        return this.prisma.contactDescription.findMany({
-            skip,
-            take,
-            cursor,
-            where,
-            orderBy,
-        });
-    }
+    // async ContactDescriptions(params: {
+    //     skip?: number;
+    //     take?: number;
+    //     cursor?: Prisma.ContactDescriptionWhereUniqueInput;
+    //     where?: Prisma.ContactDescriptionWhereInput;
+    //     orderBy?: Prisma.ContactDescriptionOrderByWithRelationInput;
+    // }): Promise<ContactDescription[]> {
+    //     const { skip, take, cursor, where, orderBy, } = params;
+    //     return this.prisma.contactDescription.findMany({
+    //         skip,
+    //         take,
+    //         cursor,
+    //         where,
+    //         orderBy,
+    //     });
+    // }
 
-    async createContactDescription(data: Prisma.ContactDescriptionCreateInput): Promise<ContactDescription> {
-        return this.prisma.contactDescription.create({
-            data,
-        });
-    }
+    // async createContactDescription(data: Prisma.ContactDescriptionCreateInput): Promise<ContactDescription> {
+    //     return this.prisma.contactDescription.create({
+    //         data,
+    //     });
+    // }
 
-    async updateContactDescription(params: {
-        where: Prisma.ContactDescriptionWhereUniqueInput;
-        data: Prisma.ContactDescriptionUpdateInput;
-    }): Promise<ContactDescription> {
-        const { where, data } = params;
-        return this.prisma.contactDescription.update({
-            data,
-            where,
-        });
-    }
+    // async updateContactDescription(params: {
+    //     where: Prisma.ContactDescriptionWhereUniqueInput;
+    //     data: Prisma.ContactDescriptionUpdateInput;
+    // }): Promise<ContactDescription> {
+    //     const { where, data } = params;
+    //     return this.prisma.contactDescription.update({
+    //         data,
+    //         where,
+    //     });
+    // }
 
-    async deleteContactDescription(where: Prisma.ContactDescriptionWhereUniqueInput): Promise<ContactDescription> {
-        return this.prisma.contactDescription.delete({
-            where,
-        });
-    }
+    // async deleteContactDescription(where: Prisma.ContactDescriptionWhereUniqueInput): Promise<ContactDescription> {
+    //     return this.prisma.contactDescription.delete({
+    //         where,
+    //     });
+    // }
 }

@@ -284,6 +284,33 @@ export class ContactController {
         );
     }
 
+    //Languages Spoken
+    @Post('connectLanguageSpoken')
+    async connectLanguageSpoken(
+        @Body() data: {
+            languageKey: string,
+            contactId: number,
+        },
+    ): Promise<Contact> {
+        return this.contactService.connectLanguageSpoken({
+            languageKey: data.languageKey,
+            contactId: data.contactId,
+        });
+    }
+
+    @Post('disconnectLanguageSpoken')
+    async disconnectLanguageSpoken(
+        @Body() data: {
+            languageKey: string,
+            contactId: number,
+        },
+    ): Promise<Contact> {
+        return this.contactService.disconnectLanguageSpoken({
+            languageKey: data.languageKey,
+            contactId: data.contactId,
+        });
+    }
+
     //Contact Description
     // @UseGuards(TokenIdAuthGuard)
     // @Get('getUserContactDescriptions')

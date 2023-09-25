@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation, HealthIssueType } from '@prisma/client';
+import { Description, Gender, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -38,7 +38,7 @@ export class PetService {
                                 }
                             }
                         },
-                        contact_description: true
+                        // contact_description: true
                     }
                 }
             }
@@ -83,7 +83,8 @@ export class PetService {
                                 }
                             }
                         },
-                        contact_description: true,
+                        // contact_description: true,
+                        languages_spoken: true,
                     }
                 },
                 pet_pictures: true,
@@ -498,27 +499,27 @@ export class PetService {
         });
     }
 
-    stringToHealthIssueType(health_issue_type: string): HealthIssueType {
-        switch (health_issue_type.toLowerCase()) {
-            case "allergies":
-                return HealthIssueType.Allergies;
-            case "medication":
-                return HealthIssueType.Medication;
-            default:
-                return HealthIssueType.Allergies;
-        }
-    }
+    // stringToHealthIssueType(health_issue_type: string): HealthIssueType {
+    //     switch (health_issue_type.toLowerCase()) {
+    //         case "allergies":
+    //             return HealthIssueType.Allergies;
+    //         case "medication":
+    //             return HealthIssueType.Medication;
+    //         default:
+    //             return HealthIssueType.Allergies;
+    //     }
+    // }
 
-    healthIssueTypeToString(health_issue_type: HealthIssueType): string {
-        switch (health_issue_type) {
-            case HealthIssueType.Allergies:
-                return "Allergies";
-            case HealthIssueType.Medication:
-                return "Medication";
-            default:
-                return "Allergies";
-        }
-    }
+    // healthIssueTypeToString(health_issue_type: HealthIssueType): string {
+    //     switch (health_issue_type) {
+    //         case HealthIssueType.Allergies:
+    //             return "Allergies";
+    //         case HealthIssueType.Medication:
+    //             return "Medication";
+    //         default:
+    //             return "Allergies";
+    //     }
+    // }
 
 
     parseGenderFromString(gender?: string): Gender {

@@ -829,7 +829,8 @@ export class PetController {
             {
                 data: {
                     health_issue_name: data.health_issue_name,
-                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                    // health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                    health_issue_type: data.health_issue_type.toLowerCase(),
                 },
                 where: {
                     health_issue_id: data.health_issue_id
@@ -852,7 +853,8 @@ export class PetController {
             {
                 data: {
                     health_issue_name: data.health_issue_name,
-                    health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                    // health_issue_type: this.petService.stringToHealthIssueType(data.health_issue_type),
+                    health_issue_type: data.health_issue_type.toLowerCase(),
                     MedicalInformation: {
                         connect: {
                             medical_information_id: data.medical_information_id
