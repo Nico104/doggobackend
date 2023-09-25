@@ -17,9 +17,12 @@ import { ContactController } from './contact/contact.controller';
 import { ContactService } from './contact/contact.service';
 import { ContactModule } from './contact/contact.module';
 import { NotificationModule } from './notification/notification.module';
+import { ContactusService } from './contactus/contactus.service';
+import { ContactusController } from './contactus/contactus.controller';
+import { ContactusModule } from './contactus/contactus.module';
 
 @Module({
-  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule, NotificationModule,
+  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule, NotificationModule, ContactusModule,
     //    MailerModule.forRoot({
     //   // transport: 'smtps://user@domain.com:pass@smtp.domain.com',
     //   transport: {
@@ -47,7 +50,7 @@ import { NotificationModule } from './notification/notification.module';
     //   },
     // }),
   ],
-  controllers: [AppController],
-  providers: [AppService, S3uploadService],
+  controllers: [AppController,],
+  providers: [AppService, S3uploadService,],
 })
 export class AppModule { }

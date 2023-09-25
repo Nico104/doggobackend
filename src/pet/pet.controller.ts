@@ -308,6 +308,28 @@ export class PetController {
     }
 
     @UseGuards(TokenIdAuthGuard)
+    @Post('updateContactVisibility')
+    async updateContactVisibility(
+        @Request() req: any,
+        @Body() data: {
+            contact_visbility: boolean;
+            petProfileId: number;
+        },
+    ): Promise<Pet> {
+        return this.petService.updatePet(
+            {
+
+                where: {
+                    profile_id: data.petProfileId,
+                },
+                data: {
+                    hide_contacts: data.contact_visbility,
+                }
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
     @Get('getPetDocuments/:profile_id')
     async getPetDocuments(@Request() req: any, @Param('profile_id') profile_id: string): Promise<Document[]> {
         return this.petService.Documents(

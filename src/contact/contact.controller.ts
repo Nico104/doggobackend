@@ -3,7 +3,7 @@ import { ContactService } from './contact.service';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
 import { diskStorage } from 'multer';
-import { Contact, ContactDescription, PhoneNumber } from '@prisma/client';
+import { Contact, PhoneNumber } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GlobalService } from 'src/utils/global.service';
 import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
@@ -285,135 +285,135 @@ export class ContactController {
     }
 
     //Contact Description
-    @UseGuards(TokenIdAuthGuard)
-    @Get('getUserContactDescriptions')
-    async getUserContactDescriptions(@Request() req: any): Promise<ContactDescription[]> {
-        return this.contactService.ContactDescriptions({
-            where: {
-                created_by: {
-                    uid: req.user.uid
-                }
-            }
-        });
-    }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Get('getUserContactDescriptions')
+    // async getUserContactDescriptions(@Request() req: any): Promise<ContactDescription[]> {
+    //     return this.contactService.ContactDescriptions({
+    //         where: {
+    //             created_by: {
+    //                 uid: req.user.uid
+    //             }
+    //         }
+    //     });
+    // }
 
-    @UseGuards(TokenIdAuthGuard)
-    @Post('connectContactDescription')
-    async connectContactDescription(
-        @Request() req: any,
-        @Body() data: {
-            contact_id: number;
-            contact_description_id: number;
-        },
-    ): Promise<Contact> {
-        return this.contactService.updateContact(
-            {
-                data: {
-                    contact_description: {
-                        connect: {
-                            contact_description_id: data.contact_description_id,
-                        }
-                    }
-                },
-                where: {
-                    contact_id: data.contact_id
-                }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Post('connectContactDescription')
+    // async connectContactDescription(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         contact_id: number;
+    //         contact_description_id: number;
+    //     },
+    // ): Promise<Contact> {
+    //     return this.contactService.updateContact(
+    //         {
+    //             data: {
+    //                 contact_description: {
+    //                     connect: {
+    //                         contact_description_id: data.contact_description_id,
+    //                     }
+    //                 }
+    //             },
+    //             where: {
+    //                 contact_id: data.contact_id
+    //             }
 
-            }
-        );
-    }
+    //         }
+    //     );
+    // }
 
-    @UseGuards(TokenIdAuthGuard)
-    @Post('disconnectContactDescription')
-    async disconnectContactDescription(
-        @Request() req: any,
-        @Body() data: {
-            contact_id: number;
-        },
-    ): Promise<Contact> {
-        return this.contactService.updateContact(
-            {
-                data: {
-                    contact_description: {
-                        disconnect: true
-                    }
-                },
-                where: {
-                    contact_id: data.contact_id
-                }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Post('disconnectContactDescription')
+    // async disconnectContactDescription(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         contact_id: number;
+    //     },
+    // ): Promise<Contact> {
+    //     return this.contactService.updateContact(
+    //         {
+    //             data: {
+    //                 contact_description: {
+    //                     disconnect: true
+    //                 }
+    //             },
+    //             where: {
+    //                 contact_id: data.contact_id
+    //             }
 
-            }
-        );
-    }
+    //         }
+    //     );
+    // }
 
 
-    @UseGuards(TokenIdAuthGuard)
-    @Post('createContactDescription')
-    async createContactDescription(
-        @Request() req: any,
-        @Body() data: {
-            contact_id: number;
-            contact_description_hex: string;
-            contact_description_label: string;
-        },
-    ): Promise<ContactDescription> {
-        return this.contactService.createContactDescription(
-            {
-                created_by: {
-                    connect: {
-                        uid: req.user.uid
-                    }
-                },
-                Contact: {
-                    connect: {
-                        contact_id: data.contact_id
-                    }
-                },
-                contact_description_hex: data.contact_description_hex,
-                contact_description_label: data.contact_description_label,
-            }
-        );
-    }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Post('createContactDescription')
+    // async createContactDescription(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         contact_id: number;
+    //         contact_description_hex: string;
+    //         contact_description_label: string;
+    //     },
+    // ): Promise<ContactDescription> {
+    //     return this.contactService.createContactDescription(
+    //         {
+    //             created_by: {
+    //                 connect: {
+    //                     uid: req.user.uid
+    //                 }
+    //             },
+    //             Contact: {
+    //                 connect: {
+    //                     contact_id: data.contact_id
+    //                 }
+    //             },
+    //             contact_description_hex: data.contact_description_hex,
+    //             contact_description_label: data.contact_description_label,
+    //         }
+    //     );
+    // }
 
-    @UseGuards(TokenIdAuthGuard)
-    @Post('updateContactDescription')
-    async updateContactDescription(
-        @Request() req: any,
-        @Body() data: {
-            contact_description_id: number;
-            contact_description_hex: string;
-            contact_description_label: string;
-        },
-    ): Promise<ContactDescription> {
-        return this.contactService.updateContactDescription(
-            {
-                data: {
-                    contact_description_hex: data.contact_description_hex,
-                    contact_description_label: data.contact_description_label,
-                    contact_description_updated_DateTime: new Date(),
-                },
-                where: {
-                    contact_description_id: data.contact_description_id,
-                }
+    // @UseGuards(TokenIdAuthGuard)
+    // @Post('updateContactDescription')
+    // async updateContactDescription(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         contact_description_id: number;
+    //         contact_description_hex: string;
+    //         contact_description_label: string;
+    //     },
+    // ): Promise<ContactDescription> {
+    //     return this.contactService.updateContactDescription(
+    //         {
+    //             data: {
+    //                 contact_description_hex: data.contact_description_hex,
+    //                 contact_description_label: data.contact_description_label,
+    //                 contact_description_updated_DateTime: new Date(),
+    //             },
+    //             where: {
+    //                 contact_description_id: data.contact_description_id,
+    //             }
 
-            }
-        );
-    }
+    //         }
+    //     );
+    // }
 
-    @Delete('deleteContactDescription')
-    async deleteContactDescription(
-        @Request() req: any,
-        @Body() data: {
-            contact_description_id: number;
-        },
-    ): Promise<ContactDescription> {
-        return this.contactService.deleteContactDescription(
-            {
-                contact_description_id: data.contact_description_id,
-            },
-        );
+    // @Delete('deleteContactDescription')
+    // async deleteContactDescription(
+    //     @Request() req: any,
+    //     @Body() data: {
+    //         contact_description_id: number;
+    //     },
+    // ): Promise<ContactDescription> {
+    //     return this.contactService.deleteContactDescription(
+    //         {
+    //             contact_description_id: data.contact_description_id,
+    //         },
+    //     );
 
-    }
+    // }
 
 
 

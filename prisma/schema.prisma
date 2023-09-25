@@ -19,10 +19,10 @@ enum LetterStyle {
   April3
 }
 
-enum HealthIssueType {
-  Allergies
-  Medication
-}
+// enum HealthIssueType {
+//   Allergies
+//   Medication
+// }
 
 // enum DocumentType {
 //   Allergies
@@ -49,6 +49,7 @@ model Language {
   langauge_flag_image_path              String        @default("flags/langauge/english_flag.png")
   Description                           Description[]
   Country                               Country[]
+  Contact                               Contact[]
 }
 
 // model User {
@@ -77,11 +78,12 @@ model User {
   Pet                  Pet[]
   Tag                  CollarTag[]
   UserLogins           UserLogins[]
-  ContactDescription   ContactDescription[]
+  // ContactDescription   ContactDescription[]
   // ChangeEmailVerificationCode ChangeEmailVerificationCode[]
   Contact              Contact[]
   DeviceMessagingToken DeviceMessagingToken[]
   Notification         Notification[]
+  ContactUs            ContactUs[]
 }
 
 // model User {
@@ -206,37 +208,38 @@ model Pet {
   // medical_information_id    Int
   BehaviourInformation BehaviourInformation?
   // behaviour_information_id  Int
+  hide_contacts        Boolean               @default(false)
 }
 
 model Contact {
-  contact_id                               Int                 @id @default(autoincrement())
-  contact_creation_DateTime                DateTime            @default(now())
-  contact_name                             String
-  contact_picture_link                     String?
-  contact_description                      ContactDescription? @relation(fields: [contactDescriptionContact_description_id], references: [contact_description_id])
-  contactDescriptionContact_description_id Int?
-  contact_telephone_numbers                PhoneNumber[]
-  contact_email                            String?
-  contact_address                          String?
-  contact_facebook                         String?
-  contact_instagram                        String?
-  // Pet                                      Pet                 @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
-  // petProfile_id                            Int
-  Pet                                      Pet[]
-  createdBy                                User                @relation(fields: [uid], references: [uid])
-  uid                                      String
+  contact_id                Int           @id @default(autoincrement())
+  contact_creation_DateTime DateTime      @default(now())
+  contact_name              String
+  contact_picture_link      String?
+  contact_description       String        @default("")
+  // contact_description                      ContactDescription? @relation(fields: [contactDescriptionContact_description_id], references: [contact_description_id])
+  // contactDescriptionContact_description_id Int?
+  contact_telephone_numbers PhoneNumber[]
+  contact_email             String?
+  contact_address           String?
+  contact_facebook          String?
+  contact_instagram         String?
+  Pet                       Pet[]
+  createdBy                 User          @relation(fields: [uid], references: [uid])
+  uid                       String
+  languages_spoken          Language[]
 }
 
-model ContactDescription {
-  contact_description_id                Int       @id @default(autoincrement())
-  contact_description_label             String
-  contact_description_hex               String
-  Contact                               Contact[]
-  created_by                            User      @relation(fields: [uid], references: [uid])
-  uid                                   String
-  contact_description_creation_DateTime DateTime  @default(now())
-  contact_description_updated_DateTime  DateTime  @default(now())
-}
+// model ContactDescription {
+//   contact_description_id                Int       @id @default(autoincrement())
+//   contact_description_label             String
+//   contact_description_hex               String
+//   Contact                               Contact[]
+//   created_by                            User      @relation(fields: [uid], references: [uid])
+//   uid                                   String
+//   contact_description_creation_DateTime DateTime  @default(now())
+//   contact_description_updated_DateTime  DateTime  @default(now())
+// }
 
 model Description {
   Pet                      Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
@@ -272,7 +275,8 @@ model PhoneNumber {
 model HealthIssue {
   health_issue_id                          Int                @id @default(autoincrement())
   health_issue_name                        String
-  health_issue_type                        HealthIssueType
+  // health_issue_type                        HealthIssueType
+  health_issue_type                        String             @default("Allergies")
   linked_document                          Document?          @relation(fields: [documentDocument_id], references: [document_id])
   documentDocument_id                      Int?
   // health_issue_text                        String
@@ -336,3 +340,14 @@ model Scan {
 //   faq_category String
 //   faq_
 // }
+
+model ContactUs {
+  contact_us_id  Int     @id @default(autoincrement())
+  user           User    @relation(fields: [uid], references: [uid])
+  uid            String
+  categorie      String
+  text           String
+  declared_name  String
+  declared_email String
+  seen           Boolean @default(false)
+}
