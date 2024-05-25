@@ -6,7 +6,7 @@ import * as admin from 'firebase-admin';
 import { ServiceAccount } from "firebase-admin";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   //Firebase config
 
@@ -21,8 +21,8 @@ async function bootstrap() {
   //TODO dont forget to chnage path in prod
   //https://console.firebase.google.com/u/0/project/finma-dbc70/settings/serviceaccounts/adminsdk
   //pululu
-  var serviceAccount = require("C:/Users/lepups/Documents/Doggostuff/Code/Server/finma-dbc70-firebase-adminsdk-b2ixq-f1d692a70e.json");
-  // var serviceAccount = require("/home/nico/credential_files/finma-dbc70-firebase-adminsdk-b2ixq-f1d692a70e.json"); //Server One!
+  // var serviceAccount = require("C:/Users/lepups/Documents/Doggostuff/Code/Server/finma-dbc70-firebase-adminsdk-b2ixq-f1d692a70e.json");
+  var serviceAccount = require("/home/nico/backend/finma-dbc70-firebase-adminsdk-b2ixq-f1d692a70e.json"); //Server One!
   // Initialize the firebase admin app
   // admin.initializeApp({
   //   credential: admin.credential.cert(adminConfig),
@@ -33,6 +33,8 @@ async function bootstrap() {
   });
 
   //Firebase config END
+
+  app.enableCors();
 
   await app.listen(3000, '0.0.0.0');
 }

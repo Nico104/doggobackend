@@ -155,6 +155,8 @@ export class PetController {
     }
 
 
+
+
     //Picture Upload
 
     /**
@@ -382,6 +384,24 @@ export class PetController {
         );
     }
 
+    @Get('getPetFromScan/:code')
+    async getPetFromScan(@Param('code') code: string
+    ): Promise<Pet> {
+        let pets = await this.petService.Pets(
+            {
+                where: {
+                    Tag: {
+                        some: {
+                            activationCode: code
+                        }
+                    }
+                },
+                take: 1
+            }
+        );
+        return pets.at(0);
+    }
+
     @UseGuards(TokenIdAuthGuard)
     @Get('getPetsFromContact/:contact_id')
     async getPetsFromContact(@Request() req: any, @Param('contact_id') contact_id: string): Promise<Pet[]> {
@@ -460,6 +480,13 @@ export class PetController {
             // pet_owner_instagram?: string | null;
             pet_is_Lost: boolean;
             pet_is_lost_text: string;
+            pet_tattooID?: string;
+            pet_licenceID?: string;
+            pet_favorite_toys?: string;
+            pet_favorite_activities?: string;
+            pet_behavioral_notes?: string;
+            pet_special_needs?: string;
+            pet_diet_preferences?: string;
         },
     ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
@@ -479,9 +506,42 @@ export class PetController {
                         // pet_owner_instagram: data.pet_owner_instagram,
                         pet_is_Lost: data.pet_is_Lost,
                         pet_is_lost_text: data.pet_is_lost_text,
+                        pet_tattooID: data.pet_tattooID,
+                        pet_licenceID: data.pet_licenceID,
+                        pet_favorite_toys: data.pet_favorite_toys,
+                        pet_favorite_activities: data.pet_favorite_activities,
+                        pet_behavioral_notes: data.pet_behavioral_notes,
+                        pet_special_needs: data.pet_special_needs,
+                        pet_diet_preferences: data.pet_diet_preferences,
                     },
                     where: {
                         profile_id: data.profile_id
+                    }
+                }
+            );
+        }
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateSingleDescription')
+    async updateSingleDescription(
+        @Request() req: any,
+        @Body() data: {
+            petProfile_id: number;
+            description_text: string;
+        },
+    ): Promise<Pet> {
+        if (await this.petService.isUserPetOwner({
+            profile_id: data.petProfile_id,
+            uid: req.user.uid,
+        })) {
+            return this.petService.updatePet(
+                {
+                    data: {
+                        description: data.description_text
+                    },
+                    where: {
+                        profile_id: data.petProfile_id
                     }
                 }
             );
@@ -786,12 +846,24 @@ export class PetController {
         @Body() data: {
             medical_information_id: number;
             sterilized: boolean;
+            breed?: string;
+            age?: string;
+            vaccinations?: string;
+            allergies?: string;
+            medications?: string;
+            chronicConditions?: string;
         },
     ): Promise<MedicalInformation> {
         return this.petService.updateMedicalInformation(
             {
                 data: {
-                    sterilized: data.sterilized
+                    sterilized: data.sterilized,
+                    breed: data.breed,
+                    age: data.age,
+                    vaccinations: data.vaccinations,
+                    allergies: data.allergies,
+                    medications: data.medications,
+                    chronicConditions: data.chronicConditions,
                 },
                 where: {
                     // petProfile_id: data.petProfile_id

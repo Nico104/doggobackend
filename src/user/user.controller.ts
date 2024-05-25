@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User, User as UserModel } from '@prisma/client';
+import { NotificationSettings, User, User as UserModel } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -299,6 +299,26 @@ export class UserController {
         );
     }
 
+    @UseGuards(TokenIdAuthGuard)
+    @Delete('deleteUser')
+    async deleteUser(@Request() req,
+        @Body() data: {
+            message: string,
+            reason: string,
+        },) {
+        await this.userService.deleteUser(
+            {
+                uid: req.user.uid
+            }
+        );
+        this.userService.createDeletedUser(
+            {
+                message: data.message,
+                reason: data.reason
+            }
+        );
+    }
+
 
     @Post('testFCM')
     async testFCM(
@@ -339,7 +359,111 @@ export class UserController {
 
         // console.log(req.user);
         return req.user.uid;
-
     }
+
+
+    @UseGuards(TokenIdAuthGuard)
+    @Get('getNotificationSettings')
+    async getNotificationSettings(@Request() req,): Promise<NotificationSettings> {
+        console.log(req.user.uid);
+        return this.userService.NotificationSettings(
+            {
+                uid: req.user.uid
+            }
+        );
+    }
+
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateNotificationSettings')
+    async updateNotificationSettings(
+        @Request() req,
+        @Body() data: {
+            notification1: boolean,
+            notification2: boolean,
+            notification3: boolean,
+            notification4: boolean,
+            notification5: boolean,
+            email1: boolean,
+            email2: boolean,
+            email3: boolean,
+            email4: boolean,
+            email5: boolean,
+        },) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    uid: req.user.uid
+                },
+                data: {
+                    NotificationSettings: {
+                        upsert: {
+                            create: {
+                                email1: data.email1,
+                                email2: data.email2,
+                                email3: data.email3,
+                                email4: data.email4,
+                                email5: data.email5,
+                                notification1: data.notification1,
+                                notification2: data.notification2,
+                                notification3: data.notification3,
+                                notification4: data.notification4,
+                                notification5: data.notification5,
+                            },
+                            update: {
+                                email1: data.email1,
+                                email2: data.email2,
+                                email3: data.email3,
+                                email4: data.email4,
+                                email5: data.email5,
+                                notification1: data.notification1,
+                                notification2: data.notification2,
+                                notification3: data.notification3,
+                                notification4: data.notification4,
+                                notification5: data.notification5,
+                            },
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    @UseGuards(TokenIdAuthGuard)
+    @Post('updateUserAppLanguage')
+    async updateUserAppLanguage(
+        @Request() req,
+        @Body() data: {
+            lang_key: string,
+        },) {
+        await this.userService.updateUser(
+            {
+                where: {
+                    uid: req.user.uid
+                },
+                data: {
+                    UserSettings: {
+                        upsert: {
+                            create: {
+                                userLanguage: {
+                                    connect: {
+                                        language_key: data.lang_key,
+                                    }
+                                }
+                            },
+                            update: {
+                                userLanguage: {
+                                    connect: {
+                                        language_key: data.lang_key,
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        );
+    }
+
 
 }

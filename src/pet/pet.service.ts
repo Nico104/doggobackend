@@ -40,7 +40,13 @@ export class PetService {
                         },
                         // contact_description: true
                     }
-                }
+                },
+                BehaviourInformation: true,
+                MedicalInformation: {
+                    include: {
+                        health_issues: true
+                    }
+                },
             }
         });
     }
@@ -91,7 +97,11 @@ export class PetService {
                 Tag: true,
                 pet_profile_scans: true,
                 BehaviourInformation: true,
-                MedicalInformation: true,
+                MedicalInformation: {
+                    include: {
+                        health_issues: true
+                    }
+                },
             }
         });
     }

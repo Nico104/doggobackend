@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, DeletedUser, NotificationSettings } from '@prisma/client';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -69,6 +69,12 @@ export class UserService {
         });
     }
 
+    async createDeletedUser(data: Prisma.DeletedUserCreateInput): Promise<DeletedUser> {
+        return this.prisma.deletedUser.create({
+            data,
+        });
+    }
+
     /**
      * Checcks if a useremail is available
      * @param useremail for the useremail searched for
@@ -81,6 +87,14 @@ export class UserService {
             where: {
                 email: useremail
             }
+        });
+    }
+
+    async NotificationSettings(
+        NotificationSettingsWhereUniqueInput: Prisma.NotificationSettingsWhereUniqueInput,
+    ): Promise<NotificationSettings | null> {
+        return this.prisma.notificationSettings.findUnique({
+            where: NotificationSettingsWhereUniqueInput,
         });
     }
 

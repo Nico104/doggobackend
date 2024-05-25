@@ -28,6 +28,12 @@ export class AuthService {
                     email_verified: params.ourdecodedToken.email_verified,
                     displayName: params.userRecord.displayName,
                     providerId: params.userRecord.providerData[0].providerId,
+                    UserSettings: {
+                        create: {}
+                    },
+                    NotificationSettings: {
+                        create: {}
+                    }
                 },
                 update: {
                     email: params.ourdecodedToken.email,

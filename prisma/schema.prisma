@@ -13,25 +13,6 @@ enum Gender {
   NONE
 }
 
-enum LetterStyle {
-  April1
-  April2
-  April3
-}
-
-// enum HealthIssueType {
-//   Allergies
-//   Medication
-// }
-
-// enum DocumentType {
-//   Allergies
-//   Dewormers
-//   Health
-//   Medicine
-//   Noid
-// }
-
 model Country {
   country_key             String        @id @unique
   country_flag_image_path String
@@ -42,35 +23,21 @@ model Country {
 }
 
 model Language {
-  language_key                          String        @id @unique
-  language_key_translate                String        @default("EN")
+  language_key                          String         @id @unique
+  language_key_translate                String         @default("EN")
   language_label                        String
-  language_isAvailableForAppTranslation Boolean       @default(false)
-  langauge_flag_image_path              String        @default("flags/langauge/english_flag.png")
+  language_isAvailableForAppTranslation Boolean        @default(false)
+  langauge_flag_image_path              String         @default("flags/langauge/english_flag.png")
   Description                           Description[]
   Country                               Country[]
   Contact                               Contact[]
+  UserSettings                          UserSettings[]
 }
-
-// model User {
-//   useremail                   String                        @id @unique
-//   userSignUpDateTime          DateTime                      @default(now())
-//   userpassword                String
-//   name                        String                        @default("")
-//   user_pet_profile            Pet[]
-//   Tag                         CollarTag[]
-//   UserLogins                  UserLogins[]
-//   ContactDescription          ContactDescription[]
-//   ChangeEmailVerificationCode ChangeEmailVerificationCode[]
-//   Contact                     Contact[]
-//   DeviceMessagingToken        DeviceMessagingToken[]
-//   Notification                Notification[]
-// }
 
 model User {
   uid                  String                 @id @unique
   displayName          String?
-  email                String
+  email                String                 @unique
   providerId           String
   email_verified       Boolean
   userSignUpDateTime   DateTime               @default(now())
@@ -84,6 +51,8 @@ model User {
   DeviceMessagingToken DeviceMessagingToken[]
   Notification         Notification[]
   ContactUs            ContactUs[]
+  UserSettings         UserSettings?
+  NotificationSettings NotificationSettings?
 }
 
 // model User {
@@ -141,13 +110,27 @@ model Notification {
 //   unvalidifiedDateTime          DateTime?
 // }
 
-// model UserSettings {
-//   username         String   @id
-//   isDarkTheme      Boolean  @default(true)
-//   userLanguageName String
-//   userLanguage     Language @relation(fields: [userLanguageName], references: [languageName])
-//   user             User     @relation(fields: [username], references: [username])
-// }
+model UserSettings {
+  uid                String   @id
+  userAppLanguageKey String   @default("en")
+  userLanguage       Language @relation(fields: [userAppLanguageKey], references: [language_key])
+  user               User     @relation(fields: [uid], references: [uid])
+}
+
+model NotificationSettings {
+  uid           String  @id
+  user          User    @relation(fields: [uid], references: [uid])
+  notification1 Boolean @default(true)
+  notification2 Boolean @default(true)
+  notification3 Boolean @default(true)
+  notification4 Boolean @default(true)
+  notification5 Boolean @default(true)
+  email1        Boolean @default(true)
+  email2        Boolean @default(true)
+  email3        Boolean @default(true)
+  email4        Boolean @default(true)
+  email5        Boolean @default(true)
+}
 
 model UserLogins {
   userLgoin_id  Int      @id @default(autoincrement())
@@ -195,20 +178,28 @@ model Pet {
   pet_gender                Gender?
   pet_chip_id               String?
   pet_description           Description[]
+  description               String        @default("")
   // pet_important_information ImportantInformation?
 
-  pet_documents        Document[]
-  pet_pictures         PetPicture[]
-  pet_is_Lost          Boolean
-  pet_is_lost_text     String                @default("")
-  pet_profile_scans    Scan[]
-  Tag                  CollarTag[]
-  Contact              Contact[]
-  MedicalInformation   MedicalInformation?
+  pet_documents           Document[]
+  pet_pictures            PetPicture[]
+  pet_is_Lost             Boolean
+  pet_is_lost_text        String                @default("")
+  pet_profile_scans       Scan[]
+  Tag                     CollarTag[]
+  Contact                 Contact[]
+  MedicalInformation      MedicalInformation?
   // medical_information_id    Int
-  BehaviourInformation BehaviourInformation?
+  BehaviourInformation    BehaviourInformation?
   // behaviour_information_id  Int
-  hide_contacts        Boolean               @default(false)
+  hide_contacts           Boolean               @default(false)
+  pet_tattooID            String?
+  pet_licenceID           String?
+  pet_favorite_toys       String?
+  pet_favorite_activities String?
+  pet_behavioral_notes    String?
+  pet_special_needs       String?
+  pet_diet_preferences    String?
 }
 
 model Contact {
@@ -290,6 +281,12 @@ model MedicalInformation {
   petProfile_id          Int           @unique
   health_issues          HealthIssue[]
   sterilized             Boolean?
+  breed                  String?
+  age                    String?
+  vaccinations           String?
+  allergies              String?
+  medications            String?
+  chronicConditions      String?
 }
 
 model BehaviourInformation {
@@ -350,4 +347,10 @@ model ContactUs {
   declared_name  String
   declared_email String
   seen           Boolean @default(false)
+}
+
+model DeletedUser {
+  delted_user_id Int    @id @default(autoincrement())
+  message        String
+  reason         String
 }
