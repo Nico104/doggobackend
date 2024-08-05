@@ -91,6 +91,11 @@ export class PetService {
                         },
                         // contact_description: true,
                         languages_spoken: true,
+                        social_medias: {
+                            include: {
+                                social_media: true
+                            }
+                        }
                     }
                 },
                 pet_pictures: true,

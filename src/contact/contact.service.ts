@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Contact, PhoneNumber, Prisma } from '@prisma/client';
+import { Contact, ContactOnSocialMedia, PhoneNumber, Prisma, SocialMedia } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -32,6 +32,11 @@ export class ContactService {
                 },
                 // contact_description: true,
                 languages_spoken: true,
+                social_medias: {
+                    include: {
+                        social_media: true
+                    }
+                }
             }
         });
     }
@@ -53,6 +58,11 @@ export class ContactService {
                 },
                 // contact_description: true,
                 languages_spoken: true,
+                social_medias: {
+                    include: {
+                        social_media: true
+                    }
+                }
             }
         });
     }
@@ -156,6 +166,41 @@ export class ContactService {
         });
     }
 
+
+    async SocialMedias(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.SocialMediaWhereUniqueInput;
+        where?: Prisma.SocialMediaWhereInput;
+        orderBy?: Prisma.SocialMediaOrderByWithRelationInput;
+    }): Promise<SocialMedia[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.socialMedia.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+        });
+    }
+
+    async upsertSocialMedia(
+        create: Prisma.ContactOnSocialMediaCreateInput,
+        update: Prisma.ContactOnSocialMediaUpdateInput,
+        where: Prisma.ContactOnSocialMediaWhereUniqueInput,
+    ): Promise<ContactOnSocialMedia> {
+        return this.prisma.contactOnSocialMedia.upsert({
+            create,
+            update,
+            where,
+        });
+    }
+
+    async deleteSocialMediaConnection(where: Prisma.ContactOnSocialMediaWhereUniqueInput): Promise<ContactOnSocialMedia> {
+        return this.prisma.contactOnSocialMedia.delete({
+            where,
+        });
+    }
 
     //Contact Description
     // async ContactDescriptions(params: {

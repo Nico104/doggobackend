@@ -3,7 +3,7 @@ import { ContactService } from './contact.service';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
 import { diskStorage } from 'multer';
-import { Contact, PhoneNumber } from '@prisma/client';
+import { Contact, ContactOnSocialMedia, PhoneNumber, SocialMedia } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GlobalService } from 'src/utils/global.service';
 import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
@@ -309,6 +309,74 @@ export class ContactController {
             languageKey: data.languageKey,
             contactId: data.contactId,
         });
+    }
+
+
+
+    @Get('getSocialMedias')
+    async getSocialMedias(@Request() req: any): Promise<SocialMedia[]> {
+        return this.contactService.SocialMedias({});
+    }
+
+    @Post('upsertSocialMedia')
+    async upsertSocialMedia(
+        @Body() data: {
+            socialmedia_id: number,
+            contactId: number,
+            accountName: string,
+        },
+    ): Promise<ContactOnSocialMedia> {
+        return this.contactService.upsertSocialMedia(
+            {
+                contact: {
+                    connect: {
+                        contact_id: data.contactId
+                    }
+                },
+                social_media: {
+                    connect: {
+                        id: data.socialmedia_id
+                    }
+                },
+                social_media_account_name: data.accountName,
+            },
+            {
+                contact: {
+                    connect: {
+                        contact_id: data.contactId
+                    }
+                },
+                social_media: {
+                    connect: {
+                        id: data.socialmedia_id
+                    }
+                },
+                social_media_account_name: data.accountName,
+            },
+            {
+                contact_id_social_media_Id: {
+                    contact_id: data.contactId,
+                    social_media_Id: data.socialmedia_id,
+                }
+            }
+        );
+    }
+
+    @Post('deleteSocialMediaConnection')
+    async deleteSocialMediaConnection(
+        @Body() data: {
+            socialmedia_id: number,
+            contactId: number,
+        },
+    ): Promise<ContactOnSocialMedia> {
+        return this.contactService.deleteSocialMediaConnection(
+            {
+                contact_id_social_media_Id: {
+                    contact_id: data.contactId,
+                    social_media_Id: data.socialmedia_id,
+                }
+            }
+        );
     }
 
     //Contact Description

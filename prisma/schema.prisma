@@ -5,8 +5,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   // url      = env("DATABASE_URL")
-  // url      = "postgresql://datamaster:Granatapfel@127.0.0.1:5432/datamaster"
-  url      = "postgresql://postgres:6978@127.0.0.1:5432/doggobase?schema=public"
+  url      = "postgresql://datamaster:Granatapfel@127.0.0.1:5432/datamaster"
+  // url      = "postgresql://postgres:6978@127.0.0.1:5432/doggobase?schema=public"
 }
 
 enum Gender {
@@ -210,22 +210,42 @@ model Pet {
 }
 
 model Contact {
-  contact_id                Int           @id @default(autoincrement())
-  contact_creation_DateTime DateTime      @default(now())
+  contact_id                Int                    @id @default(autoincrement())
+  contact_creation_DateTime DateTime               @default(now())
   contact_name              String
   contact_picture_link      String?
-  contact_description       String        @default("")
+  contact_description       String                 @default("")
   // contact_description                      ContactDescription? @relation(fields: [contactDescriptionContact_description_id], references: [contact_description_id])
   // contactDescriptionContact_description_id Int?
   contact_telephone_numbers PhoneNumber[]
   contact_email             String?
   contact_address           String?
-  contact_facebook          String?
-  contact_instagram         String?
   Pet                       Pet[]
-  createdBy                 User          @relation(fields: [uid], references: [uid])
+  createdBy                 User                   @relation(fields: [uid], references: [uid])
   uid                       String
   languages_spoken          Language[]
+  contact_facebook          String?
+  contact_instagram         String?
+  social_medias             ContactOnSocialMedia[]
+}
+
+model ContactOnSocialMedia {
+  contact                   Contact     @relation(fields: [contact_id], references: [contact_id])
+  contact_id                Int
+  social_media              SocialMedia @relation(fields: [social_media_Id], references: [id])
+  social_media_Id           Int
+  assignedAt                DateTime    @default(now())
+  social_media_account_name String
+
+  @@id([contact_id, social_media_Id])
+}
+
+model SocialMedia {
+  id                  Int                    @id @default(autoincrement())
+  name                String
+  imagepath           String
+  hintText            String                 @default("")
+  ContactSocialMedias ContactOnSocialMedia[]
 }
 
 // model ContactDescription {
