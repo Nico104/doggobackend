@@ -217,7 +217,7 @@ export class ContactController {
         @Request() req: any,
         @Body() data: {
             // contact_id: number;
-            country_key: string;
+            // country_key: string;
             phone_number: string;
             phone_number_id: number;
             phone_number_priority: number;
@@ -227,11 +227,11 @@ export class ContactController {
             {
                 data: {
                     phone_number: data.phone_number,
-                    Country: {
-                        connect: {
-                            country_key: data.country_key
-                        }
-                    },
+                    // Country: {
+                    //     connect: {
+                    //         country_key: data.country_key
+                    //     }
+                    // },
                     phone_number_priority: data.phone_number_priority
                 },
                 where: {
@@ -247,17 +247,17 @@ export class ContactController {
         @Request() req: any,
         @Body() data: {
             contact_id: number;
-            country_key: string;
+            // country_key: string;
             phone_number: string;
         },
     ): Promise<PhoneNumber> {
         return this.contactService.createPhoneNumber(
             {
-                Country: {
-                    connect: {
-                        country_key: data.country_key
-                    }
-                },
+                // Country: {
+                //     connect: {
+                //         country_key: data.country_key
+                //     }
+                // },
                 Contact: {
                     connect: {
                         contact_id: data.contact_id

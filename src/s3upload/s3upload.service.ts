@@ -32,8 +32,10 @@ export class S3uploadService {
         const fs = require("fs");
 
         aws.config.update({
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            // accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            // secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            accessKeyId: "ELRZ0BD694LXHHWGNY11",
+            secretAccessKey: "xdxuINDrJWSI9FHjQYCEwaIUvnjRnCaoFwXzyfqy"
         });
 
         // console.log("FilepPath is: " + filepath);

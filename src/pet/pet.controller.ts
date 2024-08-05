@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PetService } from './pet.service';
-import { Pet, Description, Gender, Language, CollarTag, User, PhoneNumber, Country, Document, PetPicture, BehaviourInformation, MedicalInformation, HealthIssue } from '@prisma/client';
+import { Pet, Description, Gender, Language, CollarTag, User, PhoneNumber, Document, PetPicture, BehaviourInformation, MedicalInformation, HealthIssue } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
@@ -47,6 +47,12 @@ export class PetController {
         if (files.picture != null) {
             console.log("picture is not null");
 
+            // var fs = require("fs"); // Load the filesystem module
+            // var stats = fs.statSync(files.picture[0]['path'])
+            // var fileSizeInBytes = stats.size;
+            // // Convert the file size to megabytes (optional)
+            // var fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+
             let filename: string = files.picture[0]['filename'];
 
             /**
@@ -80,6 +86,7 @@ export class PetController {
                             create: {
                                 pet_picture_link: s3PicturePath,
                                 pet_picture_priority: 0,
+                                size_megabyte: files.picture[0]['size'] / (1024 * 1024),
                             }
                         }
                     }
@@ -222,6 +229,7 @@ export class PetController {
                                     document_name: data.document_name,
                                     // document_type: document_type,
                                     content_type: data.content_type,
+                                    size_megabyte: files.document[0]['size'] / (1024 * 1024),
                                 }
                             }
                         }
@@ -487,6 +495,13 @@ export class PetController {
             pet_behavioral_notes?: string;
             pet_special_needs?: string;
             pet_diet_preferences?: string;
+            hide_contacts: boolean;
+            hide_information: boolean;
+            hide_medical: boolean;
+            hide_pictures: boolean;
+            hide_documents: boolean;
+            hide_description: boolean;
+            description: string;
         },
     ): Promise<Pet> {
         if (await this.petService.isUserPetOwner({
@@ -513,6 +528,14 @@ export class PetController {
                         pet_behavioral_notes: data.pet_behavioral_notes,
                         pet_special_needs: data.pet_special_needs,
                         pet_diet_preferences: data.pet_diet_preferences,
+                        hide_contacts: data.hide_contacts,
+                        hide_information: data.hide_information,
+                        hide_medical: data.hide_medical,
+                        hide_pictures: data.hide_pictures,
+                        hide_documents: data.hide_documents,
+                        hide_description: data.hide_description,
+                        description: data.description,
+
                     },
                     where: {
                         profile_id: data.profile_id
@@ -728,33 +751,43 @@ export class PetController {
     }
 
     //Country
-    @Get('getCountries')
-    async getCountries(): Promise<Country[]> {
-        return this.petService.Country({});
-    }
+    // @Get('getCountries')
+    // async getCountries(): Promise<Country[]> {
+    //     return this.petService.Country({});
+    // }
 
-    @Post('createCountry')
-    async createCountry(
-        @Body() data: {
-            country_key: string;
-            country_language_key: string;
-            country_flag_image_path: string;
-            country_phone_prefix: string;
-        },
-    ): Promise<Country> {
-        return this.petService.createCountry(
-            {
-                country_flag_image_path: data.country_flag_image_path,
-                country_key: data.country_key,
-                country_phone_prefix: data.country_phone_prefix,
-                country_language: {
-                    connect: {
-                        language_key: data.country_language_key
-                    }
-                }
-            }
-        );
-    }
+    // @Post('createCountry')
+    // async createCountry(
+    //     @Body() data: {
+    //         country_key: string;
+    //         country_language_key: string;
+    //         country_flag_image_path: string;
+    //         country_phone_prefix: string;
+    //     },
+    // ): Promise<Country> {
+    //     return this.petService.createCountry(
+    //         {
+    //             country_flag_image_path: data.country_flag_image_path,
+    //             country_key: data.country_key,
+    //             country_phone_prefix: data.country_phone_prefix,
+    //             country_language: {
+    //                 connect: {
+    //                     language_key: data.country_language_key
+    //                 }
+    //             }
+    //         }
+    //     );
+    // }
+
+    // @Post('createCountries')
+    // async createCountries(
+    //     @Body() data,
+    // ): Promise<Country> {
+    //     return this.petService.createCountries(
+    //         data
+    //     );
+    // }
+
 
     //Tags
     @Post('connectTagFromPetProfile')
@@ -992,5 +1025,6 @@ export class PetController {
             },
         );
     }
+
 
 }

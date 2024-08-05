@@ -4,7 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+  // url      = "postgresql://datamaster:Granatapfel@127.0.0.1:5432/datamaster"
+  url      = "postgresql://postgres:6978@127.0.0.1:5432/doggobase?schema=public"
 }
 
 enum Gender {
@@ -13,14 +15,14 @@ enum Gender {
   NONE
 }
 
-model Country {
-  country_key             String        @id @unique
-  country_flag_image_path String
-  country_phone_prefix    String
-  country_language        Language      @relation(fields: [language_key], references: [language_key])
-  language_key            String
-  PhoneNumber             PhoneNumber[]
-}
+// model Country {
+//   country_key             String        @id @unique
+//   country_flag_image_path String
+//   country_phone_prefix    String
+//   // country_language        Language      @relation(fields: [language_key], references: [language_key])
+//   // language_key            String
+//   PhoneNumber             PhoneNumber[]
+// }
 
 model Language {
   language_key                          String         @id @unique
@@ -29,7 +31,7 @@ model Language {
   language_isAvailableForAppTranslation Boolean        @default(false)
   langauge_flag_image_path              String         @default("flags/langauge/english_flag.png")
   Description                           Description[]
-  Country                               Country[]
+  // Country                               Country[]
   Contact                               Contact[]
   UserSettings                          UserSettings[]
 }
@@ -193,6 +195,11 @@ model Pet {
   BehaviourInformation    BehaviourInformation?
   // behaviour_information_id  Int
   hide_contacts           Boolean               @default(false)
+  hide_information        Boolean               @default(false)
+  hide_medical            Boolean               @default(true)
+  hide_pictures           Boolean               @default(false)
+  hide_documents          Boolean               @default(false)
+  hide_description        Boolean               @default(false)
   pet_tattooID            String?
   pet_licenceID           String?
   pet_favorite_toys       String?
@@ -257,10 +264,10 @@ model PhoneNumber {
   phone_number_priority Int    @default(0)
 
   // @@id([petProfile_id, phone_number])
-  Country             Country? @relation(fields: [countryLanguage_key], references: [country_key])
-  countryLanguage_key String?
-  Contact             Contact? @relation(fields: [contactContact_id], references: [contact_id], onDelete: Cascade)
-  contactContact_id   Int?
+  // Country             Country? @relation(fields: [countryLanguage_key], references: [country_key])
+  // countryLanguage_key String?
+  Contact           Contact? @relation(fields: [contactContact_id], references: [contact_id], onDelete: Cascade)
+  contactContact_id Int?
 }
 
 model HealthIssue {
@@ -309,6 +316,7 @@ model Document {
   // document_type DocumentType
   content_type  String        @default("udf")
   HealthIssue   HealthIssue[]
+  size_megabyte Float         @default(0)
 }
 
 model PetPicture {
@@ -317,6 +325,7 @@ model PetPicture {
   petProfile_id        Int
   pet_picture_link     String
   pet_picture_priority Int
+  size_megabyte        Float  @default(0)
 }
 
 // https://ipgeolocation.io/ip-location/78.104.182.197

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Description, Gender, Pet, Language, Prisma, CollarTag, PhoneNumber, Country, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation } from '@prisma/client';
+import { Description, Gender, Pet, Language, Prisma, CollarTag, PhoneNumber, Document, PetPicture, HealthIssue, MedicalInformation, BehaviourInformation } from '@prisma/client';
 
 @Injectable()
 export class PetService {
@@ -30,13 +30,13 @@ export class PetService {
                 Contact: {
                     include: {
                         contact_telephone_numbers: {
-                            include: {
-                                Country: {
-                                    include: {
-                                        country_language: true
-                                    }
-                                }
-                            }
+                            // include: {
+                            //     Country: {
+                            //         include: {
+                            //             country_language: true
+                            //         }
+                            //     }
+                            // }
                         },
                         // contact_description: true
                     }
@@ -81,13 +81,13 @@ export class PetService {
                 Contact: {
                     include: {
                         contact_telephone_numbers: {
-                            include: {
-                                Country: {
-                                    include: {
-                                        country_language: true
-                                    }
-                                }
-                            }
+                            // include: {
+                            //     Country: {
+                            //         include: {
+                            //             country_language: true
+                            //         }
+                            //     }
+                            // }
                         },
                         // contact_description: true,
                         languages_spoken: true,
@@ -277,31 +277,37 @@ export class PetService {
     }
 
     //Country
-    async Country(params: {
-        skip?: number;
-        take?: number;
-        cursor?: Prisma.CountryWhereUniqueInput;
-        where?: Prisma.CountryWhereInput;
-        orderBy?: Prisma.CountryOrderByWithRelationInput;
-    }): Promise<Country[]> {
-        const { skip, take, cursor, where, orderBy, } = params;
-        return this.prisma.country.findMany({
-            skip,
-            take,
-            cursor,
-            where,
-            orderBy,
-            include: {
-                country_language: true
-            }
-        });
-    }
+    // async Country(params: {
+    //     skip?: number;
+    //     take?: number;
+    //     cursor?: Prisma.CountryWhereUniqueInput;
+    //     where?: Prisma.CountryWhereInput;
+    //     orderBy?: Prisma.CountryOrderByWithRelationInput;
+    // }): Promise<Country[]> {
+    //     const { skip, take, cursor, where, orderBy, } = params;
+    //     return this.prisma.country.findMany({
+    //         skip,
+    //         take,
+    //         cursor,
+    //         where,
+    //         orderBy,
+    //         include: {
+    //             country_language: true
+    //         }
+    //     });
+    // }
 
-    async createCountry(data: Prisma.CountryCreateInput): Promise<Country> {
-        return this.prisma.country.create({
-            data,
-        });
-    }
+    // async createCountry(data: Prisma.CountryCreateInput): Promise<Country> {
+    //     return this.prisma.country.create({
+    //         data,
+    //     });
+    // }
+
+    // async createCountries(data: Prisma.CountryCreateManyInput): Promise<any> {
+    //     return this.prisma.country.createMany({
+    //         data,
+    //     });
+    // }
 
     //Tags
     async connectTagFromPetProfile(data: {
@@ -358,6 +364,20 @@ export class PetService {
         });
     }
 
+    async sizePetPictures(data: {
+        profileId: number,
+    }): Promise<number> {
+        return this.prisma.petPicture.groupBy({
+            where: {
+                pet_picture_id: data.profileId,
+            },
+            by: ['petProfile_id'],
+            _sum: {
+                size_megabyte: true,
+            },
+        })[0]['_sum']['size_megabyte'];
+    }
+
     //Docuement
     async Documents(params: {
         skip?: number;
@@ -374,6 +394,20 @@ export class PetService {
             where,
             orderBy,
         });
+    }
+
+    async sizePetDocuments(data: {
+        profileId: number,
+    }): Promise<number> {
+        return this.prisma.document.groupBy({
+            where: {
+                petProfile_id: data.profileId,
+            },
+            by: ['petProfile_id'],
+            _sum: {
+                size_megabyte: true,
+            },
+        })[0]['_sum']['size_megabyte'];
     }
 
     async Document(params: {

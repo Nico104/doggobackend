@@ -35,6 +35,7 @@ async function bootstrap() {
   //Firebase config END
 
   app.enableCors();
+  // app.
 
   await app.listen(3000, '0.0.0.0');
 }

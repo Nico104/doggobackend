@@ -22,13 +22,13 @@ export class ContactService {
             orderBy,
             include: {
                 contact_telephone_numbers: {
-                    include: {
-                        Country: {
-                            include: {
-                                country_language: true
-                            }
-                        }
-                    }
+                    // include: {
+                    //     Country: {
+                    //         include: {
+                    //             country_language: true
+                    //         }
+                    //     }
+                    // }
                 },
                 // contact_description: true,
                 languages_spoken: true,
@@ -43,13 +43,13 @@ export class ContactService {
             where: PetWhereUniqueInput,
             include: {
                 contact_telephone_numbers: {
-                    include: {
-                        Country: {
-                            include: {
-                                country_language: true
-                            }
-                        },
-                    }
+                    // include: {
+                    //     Country: {
+                    //         include: {
+                    //             country_language: true
+                    //         }
+                    //     },
+                    // }
                 },
                 // contact_description: true,
                 languages_spoken: true,
@@ -90,11 +90,11 @@ export class ContactService {
             where,
             data,
             include: {
-                Country: {
-                    include: {
-                        country_language: true
-                    }
-                }
+                // Country: {
+                //     include: {
+                //         country_language: true
+                //     }
+                // }
             }
         });
     }
@@ -103,11 +103,11 @@ export class ContactService {
         return this.prisma.phoneNumber.create({
             data,
             include: {
-                Country: {
-                    include: {
-                        country_language: true
-                    }
-                }
+                // Country: {
+                //     include: {
+                //         country_language: true
+                //     }
+                // }
             }
         });
     }

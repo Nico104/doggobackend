@@ -20,9 +20,10 @@ import { NotificationModule } from './notification/notification.module';
 import { ContactusService } from './contactus/contactus.service';
 import { ContactusController } from './contactus/contactus.controller';
 import { ContactusModule } from './contactus/contactus.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule, NotificationModule, ContactusModule,
+  imports: [PetModule, UserModule, AuthModule, TagModule, MailModule, S3uploadModule, ScanModule, ContactModule, NotificationModule, ContactusModule, HttpModule
     //    MailerModule.forRoot({
     //   // transport: 'smtps://user@domain.com:pass@smtp.domain.com',
     //   transport: {
