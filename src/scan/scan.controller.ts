@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, UseInterceptors, UploadedFiles, Param, Request, Ip } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, UseInterceptors, UploadedFiles, Param, Request } from '@nestjs/common';
 import { ScanService } from './scan.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Scan } from '@prisma/client';
@@ -28,7 +28,6 @@ export class ScanController {
     @Post('createScan')
     async createScan(
         @Request() req: Req,
-        @Ip() ip,
         @Body() data: {
             petProfileId: number;
             // scan_city: string,
@@ -37,22 +36,49 @@ export class ScanController {
             // scan_DateTime: string,
         },
     ): Promise<void> {
-        const clientIp = req.headers['x-forwarded-for'];
-        console.log(ip);
+        const clientIp: string = req.headers['x-forwarded-for'] as string;
+        console.log("Client" + clientIp);
+
+        const ipDetails = await this.scanService.getIpDetails(clientIp);
+
         console.log(req.header);
-        // return this.scanService.createScan(
-        //     {
-        //         Pet: {
-        //             connect: {
-        //                 profile_id: data.petProfileId
-        //             }
-        //         },
-        //         scan_city: "",
-        //         scan_country: "",
-        //         scan_ip_address: "",
-        //         // scan_DateTime: Da,
-        //     }
-        // );
+        await this.scanService.createScan(
+            {
+                Pet: {
+                    connect: {
+                        profile_id: data.petProfileId
+                    }
+                },
+                // scan_city: ipDetails.city,
+                // scan_country: ipDetails.country_name,
+                // scan_ip_address: ipDetails.ip as string,
+                scan_city: "",
+                scan_country: "",
+                scan_ip_address: ipDetails.ip as string,
+                // scan_DateTime: Da,
+            }
+        );
+    }
+
+    @Post('sendLocation')
+    async sendLocation(
+        @Body() data: {
+            petProfileId: number;
+            lat: string;
+            lon: string;
+        },
+    ): Promise<void> {
+        this.scanService.sendLocation(data.petProfileId, data.lat, data.lon);
+    }
+
+    @Post('sendContactInformation')
+    async sendContactInformation(
+        @Body() data: {
+            petProfileId: number;
+            contactInformation: string;
+        },
+    ): Promise<void> {
+        this.scanService.sendContactInformation(data.petProfileId, data.contactInformation);
     }
 
 }

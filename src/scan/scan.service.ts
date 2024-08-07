@@ -61,6 +61,61 @@ export class ScanService {
         return Scan;
     }
 
+    async sendLocation(petProfileId: number,
+        lat: string,
+        lon: string,): Promise<any> {
+
+        let Pet = await this.prisma.pet.findUnique({
+            where: {
+                profile_id: petProfileId
+            }
+        });
+
+        let notificationTitle: string = "Someone found " + Pet.pet_name;
+        let notificationBody: string = Pet.pet_name + "'s Location was send. Check it out: " + "Lat: " + lat + " " + "Lon: " + lon;
+
+        // create Notification
+        this.notificationService.createNotification(
+            {
+                notificationTitle: notificationTitle,
+                notificationBody: notificationBody,
+                notificationType: "location",
+                User: {
+                    connect: {
+                        uid: Pet.uid
+                    }
+                }
+            }
+        );
+    }
+
+    async sendContactInformation(petProfileId: number,
+        contactInformation: string,): Promise<any> {
+
+        let Pet = await this.prisma.pet.findUnique({
+            where: {
+                profile_id: petProfileId
+            }
+        });
+
+        let notificationTitle: string = "Someone send their contact information regarding " + Pet.pet_name;
+        let notificationBody: string = "Contact me please at " + contactInformation + " regarding " + Pet.pet_name;
+
+        // create Notification
+        this.notificationService.createNotification(
+            {
+                notificationTitle: notificationTitle,
+                notificationBody: notificationBody,
+                notificationType: "contact",
+                User: {
+                    connect: {
+                        uid: Pet.uid
+                    }
+                }
+            }
+        );
+    }
+
     async getIpDetails(ip: string, format: string = 'json'): Promise<any> {
         const url = `https://ipapi.co/${ip}/${format}/`;
 

@@ -82,11 +82,11 @@ export class NotificationService {
 
     //Never tested function
     async createNotification(data: Prisma.NotificationCreateInput): Promise<Notification> {
-        const Notification = await prisma.notification.create({
+        const Notification = await this.prisma.notification.create({
             data
         });
 
-        let deviceMessagingTokens: DeviceMessagingToken[] = await prisma.deviceMessagingToken.findMany({
+        let deviceMessagingTokens: DeviceMessagingToken[] = await this.prisma.deviceMessagingToken.findMany({
             where: {
                 User: {
                     uid: Notification.uid
