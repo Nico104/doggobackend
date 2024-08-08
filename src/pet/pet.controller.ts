@@ -495,6 +495,12 @@ export class PetController {
             pet_behavioral_notes?: string;
             pet_special_needs?: string;
             pet_diet_preferences?: string;
+            scan_hide_contacts: boolean;
+            scan_hide_information: boolean;
+            scan_hide_medical: boolean;
+            scan_hide_pictures: boolean;
+            scan_hide_documents: boolean;
+            scan_hide_description: boolean;
             hide_contacts: boolean;
             hide_information: boolean;
             hide_medical: boolean;
@@ -528,6 +534,12 @@ export class PetController {
                         pet_behavioral_notes: data.pet_behavioral_notes,
                         pet_special_needs: data.pet_special_needs,
                         pet_diet_preferences: data.pet_diet_preferences,
+                        scan_hide_contacts: data.scan_hide_contacts,
+                        scan_hide_information: data.scan_hide_information,
+                        scan_hide_medical: data.scan_hide_medical,
+                        scan_hide_pictures: data.scan_hide_pictures,
+                        scan_hide_documents: data.scan_hide_documents,
+                        scan_hide_description: data.scan_hide_description,
                         hide_contacts: data.hide_contacts,
                         hide_information: data.hide_information,
                         hide_medical: data.hide_medical,

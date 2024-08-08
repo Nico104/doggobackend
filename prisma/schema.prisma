@@ -194,12 +194,18 @@ model Pet {
   // medical_information_id    Int
   BehaviourInformation    BehaviourInformation?
   // behaviour_information_id  Int
-  hide_contacts           Boolean               @default(false)
+  hide_contacts           Boolean               @default(true)
   hide_information        Boolean               @default(false)
   hide_medical            Boolean               @default(true)
   hide_pictures           Boolean               @default(false)
-  hide_documents          Boolean               @default(false)
+  hide_documents          Boolean               @default(true)
   hide_description        Boolean               @default(false)
+  scan_hide_contacts      Boolean               @default(false)
+  scan_hide_information   Boolean               @default(false)
+  scan_hide_medical       Boolean               @default(true)
+  scan_hide_pictures      Boolean               @default(false)
+  scan_hide_documents     Boolean               @default(false)
+  scan_hide_description   Boolean               @default(false)
   pet_tattooID            String?
   pet_licenceID           String?
   pet_favorite_toys       String?
