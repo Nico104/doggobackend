@@ -400,7 +400,8 @@ export class PetController {
                 where: {
                     Tag: {
                         some: {
-                            activationCode: code
+                            // activationCode: code
+                            publicCode: code
                         }
                     }
                 },

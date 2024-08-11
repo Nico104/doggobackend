@@ -25,7 +25,9 @@ export class PetService {
                 // pet_important_information: true,
                 pet_documents: true,
                 pet_pictures: true,
-                Tag: true,
+                Tag: {
+                    include: { model: true }
+                },
                 pet_profile_scans: true,
                 Contact: {
                     include: {
@@ -99,7 +101,9 @@ export class PetService {
                     }
                 },
                 pet_pictures: true,
-                Tag: true,
+                Tag: {
+                    include: { model: true }
+                },
                 pet_profile_scans: true,
                 BehaviourInformation: true,
                 MedicalInformation: {

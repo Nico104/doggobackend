@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards, Request, UseInterceptors, UploadedFiles, Param } from '@nestjs/common';
-import { CollarTag } from '@prisma/client';
+import { CollarTag, TagModel } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TagService } from './tag.service';
 import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
@@ -18,6 +18,7 @@ export class TagController {
         private readonly tagService: TagService,
         private readonly s3uploadService: S3uploadService,
     ) { }
+
 
     //!Tag Functions for Administartion
     //! Only Mod Rights
@@ -54,6 +55,12 @@ export class TagController {
     }
 
     //! Only Mod Rights
+    @Get('getAllTags')
+    async getAllTags(): Promise<CollarTag[]> {
+        return this.tagService.Tags({});
+    }
+
+    //! Only Mod Rights
     @Get('checkTagId/:tagid')
     async checkTagId(@Param('tagid') tagid: string): Promise<Boolean> {
         return this.tagService.checkTagIdAvailable({
@@ -65,23 +72,44 @@ export class TagController {
     @Post('createTag')
     async createTag(
         @Body() data: {
+            publicCode: string;
             activationCode: string;
             collarTag_id: string;
-            picturePath: string;
-            // primaryColorName: string;
-            // secondaryColorName: string;
-            // baseColorName: string;
-            // letter: string;
-            // appBackgroundColorHex: string;
-            // appPetTagPrimaryColorHex: string;
-            // appPetTagSecundaryColorHex: string;
+            // picturePath: string;
+            tagModel_shortName: string;
         },
     ): Promise<CollarTag> {
         return this.tagService.createTag(
             {
                 activationCode: data.activationCode,
                 collarTag_id: data.collarTag_id,
+                // picturePath: data.picturePath,
+                publicCode: data.publicCode,
+                model: {
+                    connect: {
+                        tagModel_shortName: data.tagModel_shortName
+                    }
+                }
+            }
+        );
+    }
+
+    //! Only Mod Rights
+    @Post('createTagModel')
+    async createTagModel(
+        @Body() data: {
+            tagModel_Description: string;
+            tagModel_Label: string;
+            picturePath: string;
+            tagModel_shortName: string;
+        },
+    ): Promise<TagModel> {
+        return this.tagService.createTagModel(
+            {
                 picturePath: data.picturePath,
+                tagModel_Description: data.tagModel_Description,
+                tagModel_shortName: data.tagModel_shortName,
+                tagModel_Label: data.tagModel_Label
             }
         );
     }
@@ -149,13 +177,14 @@ export class TagController {
         );
     }
 
-    //! Only Mod Rights
+    @UseGuards(TokenIdAuthGuard)
     @Post('disconnectTagFromUser')
     async disconnectTagFromUser(
         @Body() data: {
             tagId: string
         },
     ): Promise<CollarTag> {
+        //TODO Check if user has the rights to
         return this.tagService.disconnectTagFromUser(
             {
                 tagId: data.tagId

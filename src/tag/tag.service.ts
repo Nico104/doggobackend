@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CollarTag, Prisma } from '@prisma/client';
+import { CollarTag, Prisma, TagModel } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class TagService {
     constructor(private prisma: PrismaService) { }
+
+    //Model
+    async createTagModel(data: Prisma.TagModelCreateInput): Promise<TagModel> {
+        return this.prisma.tagModel.create({
+            data,
+        });
+    }
+
+
+    //Individual Tag
 
     async Tags(params: {
         skip?: number;
@@ -20,12 +30,19 @@ export class TagService {
             cursor,
             where,
             orderBy,
+            include: {
+                model: true
+            }
         });
     }
 
+
     async Tag(CollarTagWhereUniqueInput: Prisma.CollarTagWhereUniqueInput): Promise<CollarTag> {
         return this.prisma.collarTag.findUnique({
-            where: CollarTagWhereUniqueInput
+            where: CollarTagWhereUniqueInput,
+            include: {
+                model: true
+            }
         });
     }
 
@@ -54,6 +71,9 @@ export class TagService {
                         }
                     },
                     assignedDate: new Date(),
+                },
+                include: {
+                    model: true
                 }
             });
         } else {

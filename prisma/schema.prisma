@@ -116,12 +116,12 @@ model UserSettings {
   uid                String   @id
   userAppLanguageKey String   @default("en")
   userLanguage       Language @relation(fields: [userAppLanguageKey], references: [language_key])
-  user               User     @relation(fields: [uid], references: [uid])
+  user               User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
 }
 
 model NotificationSettings {
   uid           String  @id
-  user          User    @relation(fields: [uid], references: [uid])
+  user          User    @relation(fields: [uid], references: [uid], onDelete: Cascade)
   notification1 Boolean @default(true)
   notification2 Boolean @default(true)
   notification3 Boolean @default(true)
@@ -136,23 +136,36 @@ model NotificationSettings {
 
 model UserLogins {
   userLgoin_id  Int      @id @default(autoincrement())
-  user          User     @relation(fields: [uid], references: [uid])
+  user          User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
   uid           String
   ipAddress     String?
   loginDateTime DateTime @default(now())
 }
 
 model CollarTag {
-  collarTag_id   String    @id @unique
-  assigned_pet   Pet?      @relation(fields: [petProfile_id], references: [profile_id])
-  petProfile_id  Int?
-  user           User?     @relation(fields: [uid], references: [uid])
-  uid            String?
-  assignedDate   DateTime?
-  activationCode String    @unique
+  collarTag_id     String    @id @unique
+  assigned_pet     Pet?      @relation(fields: [petProfile_id], references: [profile_id])
+  petProfile_id    Int?
+  user             User?     @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  uid              String?
+  assignedDate     DateTime?
+  activationCode   String    @unique
+  publicCode       String    @unique
   // CollarTagPersonalisation CollarTagPersonalisation?
-  picturePath    String
-  createdDate    DateTime  @default(now())
+  // picturePath      String
+  createdDate      DateTime  @default(now())
+  model            TagModel  @relation(fields: [tagModelTagModel], references: [tagModel])
+  tagModelTagModel Int
+}
+
+model TagModel {
+  tagModel             Int         @id @default(autoincrement())
+  tagModel_shortName   String      @unique
+  tagModel_Description String      @unique
+  tagModel_Label       String
+  picturePath          String
+  createdDate          DateTime    @default(now())
+  CollarTag            CollarTag[]
 }
 
 // model CollarTagPersonalisation {
@@ -173,7 +186,7 @@ model CollarTag {
 model Pet {
   profile_id                Int           @id @default(autoincrement())
   profile_creation_DateTime DateTime      @default(now())
-  user                      User          @relation(fields: [uid], references: [uid])
+  user                      User          @relation(fields: [uid], references: [uid], onDelete: Cascade)
   //should be pet_profile_useremail
   uid                       String
   pet_name                  String
@@ -227,7 +240,7 @@ model Contact {
   contact_email             String?
   contact_address           String?
   Pet                       Pet[]
-  createdBy                 User                   @relation(fields: [uid], references: [uid])
+  createdBy                 User                   @relation(fields: [uid], references: [uid], onDelete: Cascade)
   uid                       String
   languages_spoken          Language[]
   contact_facebook          String?
@@ -375,7 +388,7 @@ model Scan {
 
 model ContactUs {
   contact_us_id  Int     @id @default(autoincrement())
-  user           User    @relation(fields: [uid], references: [uid])
+  user           User    @relation(fields: [uid], references: [uid], onDelete: Cascade)
   uid            String
   categorie      String
   text           String
