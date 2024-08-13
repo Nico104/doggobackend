@@ -29,6 +29,7 @@ export class ScanController {
     async createScan(
         @Request() req: Req,
         @Body() data: {
+            notification: boolean;
             petProfileId: number;
             // scan_city: string,
             // scan_country: string,
@@ -42,22 +43,42 @@ export class ScanController {
         const ipDetails = await this.scanService.getIpDetails(clientIp);
 
         console.log(req.header);
-        await this.scanService.createScan(
-            {
-                Pet: {
-                    connect: {
-                        profile_id: data.petProfileId
-                    }
-                },
-                // scan_city: ipDetails.city,
-                // scan_country: ipDetails.country_name,
-                // scan_ip_address: ipDetails.ip as string,
-                scan_city: "",
-                scan_country: "",
-                scan_ip_address: ipDetails.ip as string,
-                // scan_DateTime: Da,
-            }
-        );
+        if (data.notification = true) {
+            await this.scanService.createScanWithoutNotification(
+                {
+                    Pet: {
+                        connect: {
+                            profile_id: data.petProfileId
+                        }
+                    },
+                    // scan_city: ipDetails.city,
+                    // scan_country: ipDetails.country_name,
+                    // scan_ip_address: ipDetails.ip as string,
+                    scan_city: "",
+                    scan_country: "",
+                    scan_ip_address: ipDetails.ip as string,
+                    // scan_DateTime: Da,
+                }
+            );
+        } else {
+            await this.scanService.createScan(
+                {
+                    Pet: {
+                        connect: {
+                            profile_id: data.petProfileId
+                        }
+                    },
+                    // scan_city: ipDetails.city,
+                    // scan_country: ipDetails.country_name,
+                    // scan_ip_address: ipDetails.ip as string,
+                    scan_city: "",
+                    scan_country: "",
+                    scan_ip_address: ipDetails.ip as string,
+                    // scan_DateTime: Da,
+                }
+            );
+        }
+
     }
 
     @Post('sendLocation')

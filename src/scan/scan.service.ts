@@ -30,6 +30,14 @@ export class ScanService {
         });
     }
 
+    async createScanWithoutNotification(data: Prisma.ScanCreateInput): Promise<Scan> {
+        let Scan = await this.prisma.scan.create({
+            data,
+        });
+
+        return Scan;
+    }
+
     async createScan(data: Prisma.ScanCreateInput): Promise<Scan> {
         let Scan = await this.prisma.scan.create({
             data,
