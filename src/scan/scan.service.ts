@@ -4,6 +4,9 @@ import { Prisma, Scan } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import { NotificationService } from 'src/notification/notification.service';
 import { PrismaService } from 'src/prisma.service';
+import { firstValueFrom } from 'rxjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ScanService {
@@ -38,7 +41,7 @@ export class ScanService {
         return Scan;
     }
 
-    async createScan(data: Prisma.ScanCreateInput): Promise<Scan> {
+    async createScan(data: Prisma.ScanCreateInput, lang_key: string): Promise<Scan> {
         let Scan = await this.prisma.scan.create({
             data,
         });
@@ -49,8 +52,10 @@ export class ScanService {
             }
         });
 
-        let notificationTitle: string = "Someone found " + Pet.pet_name;
-        let notificationBody: string = Pet.pet_name + " just got scanned in " + Scan.scan_country;
+        // let notificationTitle: string = "Someone found " + Pet.pet_name;
+        // let notificationBody: string = Pet.pet_name + " just got scanned in " + Scan.scan_country;
+        let notificationTitle: string = Pet.pet_name + this.getTranslation("notification_scan_Title", lang_key);
+        let notificationBody: string = this.getTranslation("notification_scan_Text", lang_key) + Scan.scan_country;
 
         // create Notification
         this.notificationService.createNotification(
@@ -71,7 +76,7 @@ export class ScanService {
 
     async sendLocation(petProfileId: number,
         lat: string,
-        lon: string,): Promise<any> {
+        lon: string, lang_key: string): Promise<any> {
 
         let Pet = await this.prisma.pet.findUnique({
             where: {
@@ -79,8 +84,8 @@ export class ScanService {
             }
         });
 
-        let notificationTitle: string = "Someone found " + Pet.pet_name;
-        let notificationBody: string = Pet.pet_name + "'s Location was send. Check it out: " + "Lat: " + lat + " " + "Lon: " + lon;
+        let notificationTitle: string = Pet.pet_name + this.getTranslation("notification_location_Title", lang_key);
+        let notificationBody: string = this.getTranslation("notification_location_Text", lang_key) + "Lat: " + lat + " " + "Lon: " + lon;
 
         // create Notification
         this.notificationService.createNotification(
@@ -98,7 +103,7 @@ export class ScanService {
     }
 
     async sendContactInformation(petProfileId: number,
-        contactInformation: string,): Promise<any> {
+        contactInformation: string, lang_key: string): Promise<any> {
 
         let Pet = await this.prisma.pet.findUnique({
             where: {
@@ -106,8 +111,8 @@ export class ScanService {
             }
         });
 
-        let notificationTitle: string = "Someone send their contact information regarding " + Pet.pet_name;
-        let notificationBody: string = "Contact me please at " + contactInformation + " regarding " + Pet.pet_name;
+        let notificationTitle: string = this.getTranslation("notification_contact_Title", lang_key) + Pet.pet_name;
+        let notificationBody: string = this.getTranslation("notification_contact_Text", lang_key) + contactInformation;
 
         // create Notification
         this.notificationService.createNotification(
@@ -125,46 +130,51 @@ export class ScanService {
     }
 
     async getIpDetails(ip: string, format: string = 'json'): Promise<any> {
-        const url = `https://ipapi.co/${ip}/${format}/`;
+        const url = `https://freeipapi.com/api/json/${ip}`;
 
         try {
-            const response: AxiosResponse<any> = await this.httpService.get(url).toPromise();
+            // const response: AxiosResponse<any> = await this.httpService.get(url).toPromise();
+
+            const response: AxiosResponse<any> = await firstValueFrom(this.httpService.get(url));
             const data = response.data;
 
             // Extract the relevant information
             const extractedData = {
-                ip: data.ip,
-                version: data.version,
-                city: data.city,
-                region: data.region,
-                region_code: data.region_code,
-                country_code: data.country_code,
-                country_code_iso3: data.country_code_iso3,
-                country_name: data.country_name,
-                country_capital: data.country_capital,
-                country_tld: data.country_tld,
-                continent_code: data.continent_code,
-                in_eu: data.in_eu,
-                postal: data.postal,
-                latitude: data.latitude,
-                longitude: data.longitude,
-                timezone: data.timezone,
-                utc_offset: data.utc_offset,
-                country_calling_code: data.country_calling_code,
-                currency: data.currency,
-                currency_name: data.currency_name,
-                languages: data.languages,
-                country_area: data.country_area,
-                country_population: data.country_population,
-                asn: data.asn,
-                org: data.org,
-                hostname: data.hostname
+                ip: data.ipAddress,
+
+                city: data.cityName,
+
+                country_name: data.countryName,
+
             };
 
             return extractedData;
         } catch (error) {
             console.error(`Failed to fetch IP details: ${error.message}`);
             throw error;
+        }
+    }
+
+    getTranslation(key: string, locale: string): string {
+        try {
+            // let localesPath = path.join(__dirname, '..', 'locales');
+            let localesPath = '/home/nico/backend/locales';
+            const filePath = path.join(localesPath, `${locale}.json`);
+            if (!fs.existsSync(filePath)) {
+                throw new Error(`Locale file ${locale}.json not found`);
+            }
+
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const translations = JSON.parse(fileContent);
+
+            if (translations[key] === undefined) {
+                throw new Error(`Key "${key}" not found in ${locale}.json`);
+            }
+
+            return translations[key];
+        } catch (error) {
+            console.error(error.message);
+            return null; // or handle the error as you prefer
         }
     }
 }

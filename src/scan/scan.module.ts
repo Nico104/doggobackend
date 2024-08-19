@@ -8,9 +8,10 @@ import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthModule } from 'src/auth/auth.module';
 import { HttpModule } from '@nestjs/axios';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, HttpModule],
+  imports: [PrismaModule, AuthModule, HttpModule, UserModule],
   controllers: [ScanController],
   providers: [ScanService, NotificationService,]
 })

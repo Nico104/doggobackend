@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import * as admin from 'firebase-admin';
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { UserRecord } from "firebase-admin/lib/auth/user-record";
@@ -7,6 +7,7 @@ import { AuthService } from "./auth.service";
 
 @Injectable()
 export class TokenIdAuthGuard implements CanActivate {
+    // protected authService: AuthService;
     constructor(private authService: AuthService) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,6 +39,32 @@ export class TokenIdAuthGuard implements CanActivate {
             return true;
         } else {
             return false;
+        }
+    }
+}
+
+
+@Injectable()
+export class AdminAuthGuard implements CanActivate {
+
+    // List of valid admin tokens
+    private readonly validAdminTokens: string[] = [
+        process.env.ADMIN_TOKEN, // You can add more tokens here if needed
+    ];
+
+    canActivate(context: ExecutionContext): boolean {
+        const request = context.switchToHttp().getRequest();
+        const authToken = request.headers.authorization;
+
+        if (!authToken) {
+            throw new UnauthorizedException('No authorization token provided');
+        }
+
+        // Check if the token is in the list of valid admin tokens
+        if (this.validAdminTokens.includes(authToken)) {
+            return true;
+        } else {
+            throw new ForbiddenException('Invalid admin token');
         }
     }
 }

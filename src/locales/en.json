@@ -1,0 +1,8 @@
+{
+    "notification_scan_Title": " has likely been found",
+    "notification_scan_Text": "Likely scanned in ",
+    "notification_contact_Title": "Contact information provided for ",
+    "notification_contact_Text": "Please reach out at ",
+    "notification_location_Title": " has been found",
+    "notification_location_Text": "Location details sent. Check it out: "
+}

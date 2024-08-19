@@ -6,7 +6,7 @@ import { MediaType, S3uploadService } from 'src/s3upload/s3upload.service';
 import { AnyFilesInterceptor, FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express/multer';
 import { diskStorage } from 'multer';
 import { GlobalService } from 'src/utils/global.service';
-import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
+import { AdminAuthGuard, TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 
 // var directoryPath = GlobalService.rootPath + 'MediaFiles/';
 var directoryPath = GlobalService.rootPath + 'TagFiles/';
@@ -22,7 +22,7 @@ export class TagController {
 
     //!Tag Functions for Administartion
     //! Only Mod Rights
-    // @UseGuards(TokenIdAuthGuard)
+    @UseGuards(AdminAuthGuard)
     @Post('uploadCollarTagPicture')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1, },
@@ -55,12 +55,14 @@ export class TagController {
     }
 
     //! Only Mod Rights
+    @UseGuards(AdminAuthGuard)
     @Get('getAllTags')
     async getAllTags(): Promise<CollarTag[]> {
         return this.tagService.Tags({});
     }
 
     //! Only Mod Rights
+    @UseGuards(AdminAuthGuard)
     @Get('checkTagId/:tagid')
     async checkTagId(@Param('tagid') tagid: string): Promise<Boolean> {
         return this.tagService.checkTagIdAvailable({
@@ -69,6 +71,7 @@ export class TagController {
     }
 
     //! Only Mod Rights
+    @UseGuards(AdminAuthGuard)
     @Post('createTag')
     async createTag(
         @Body() data: {
@@ -95,6 +98,7 @@ export class TagController {
     }
 
     //! Only Mod Rights
+    @UseGuards(AdminAuthGuard)
     @Post('createTagModel')
     async createTagModel(
         @Body() data: {

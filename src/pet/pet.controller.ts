@@ -12,6 +12,9 @@ import { TokenIdAuthGuard } from 'src/auth/custom_auth.guard';
 var directoryPath = GlobalService.rootPath + 'MediaFiles/';
 
 
+var maxDocuemntFileSizePerPetProfileInMB: number = 1024 * 5;
+var maxPictureFileSizePerPetProfileInMB: number = 1024 * 5;
+
 @Controller('pet')
 export class PetController {
     constructor(
@@ -41,7 +44,7 @@ export class PetController {
         @Request() req,
         @UploadedFiles() files: { picture?: Express.Multer.File[] },
         @Param('profile_id') profile_id: string
-    ): Promise<void> {
+    ): Promise<any> {
         // var picturePath = 'uploads/default/defaultProfilePicture.png';
         // let spacesPicturePath: string = 'profile/default/defaultProfilePicture';
         if (files.picture != null) {
@@ -52,6 +55,15 @@ export class PetController {
             // var fileSizeInBytes = stats.size;
             // // Convert the file size to megabytes (optional)
             // var fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+
+            let pictureFileSize = await this.petService.sizePetPictures({
+                profileId: Number(profile_id)
+            }) + files.picture[0]['size'] / (1024 * 1024);
+
+            if (pictureFileSize > maxPictureFileSizePerPetProfileInMB) {
+                console.log("pictures amount to too much storage space for this Pet Profile");
+                return "ErrorStorageFull";
+            }
 
             let filename: string = files.picture[0]['filename'];
 
@@ -193,6 +205,15 @@ export class PetController {
     ): Promise<void> {
         if (files.document != null) {
             console.log("document is not null");
+
+            let documentFileSize = await this.petService.sizePetDocuments({
+                profileId: Number(profile_id)
+            }) + files.document[0]['size'] / (1024 * 1024);
+
+            if (documentFileSize > maxDocuemntFileSizePerPetProfileInMB) {
+                console.log("docuemnts amount to too much storage space for this Pet Profile");
+                return;
+            }
 
             let filename: string = files.document[0]['filename'];
 
@@ -848,11 +869,11 @@ export class PetController {
         @Request() req: any,
         @Body() data: {
             petProfile_id: number;
-            good_with_cars: boolean;
-            good_with_kids: boolean;
-            good_with_cats: boolean;
-            good_with_dogs: boolean;
-            good_with_strangers: boolean;
+            good_with_cars?: boolean;
+            good_with_kids?: boolean;
+            good_with_cats?: boolean;
+            good_with_dogs?: boolean;
+            good_with_strangers?: boolean;
         },
     ): Promise<BehaviourInformation> {
         return this.petService.updateBehaviourInformation(

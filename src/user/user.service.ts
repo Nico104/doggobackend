@@ -12,6 +12,26 @@ export class UserService {
     ): Promise<User | null> {
         return this.prisma.user.findUnique({
             where: UserWhereUniqueInput,
+            include: {
+                UserSettings: true
+            }
+        });
+    }
+
+    async FirstUserByPet(
+        petProfileId: number,
+    ): Promise<User | null> {
+        return this.prisma.user.findFirst({
+            where: {
+                Pet: {
+                    some: {
+                        profile_id: petProfileId
+                    }
+                }
+            },
+            include: {
+                UserSettings: true
+            }
         });
     }
 
