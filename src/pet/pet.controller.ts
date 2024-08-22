@@ -60,6 +60,8 @@ export class PetController {
                 profileId: Number(profile_id)
             }) + files.picture[0]['size'] / (1024 * 1024);
 
+            console.log(pictureFileSize);
+
             if (pictureFileSize > maxPictureFileSizePerPetProfileInMB) {
                 console.log("pictures amount to too much storage space for this Pet Profile");
                 return "ErrorStorageFull";

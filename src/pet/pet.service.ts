@@ -373,18 +373,46 @@ export class PetService {
         });
     }
 
+    // async sizePetPictures(data: {
+    //     profileId: number,
+    // }): Promise<number> {
+    //     var v = this.prisma.petPicture.groupBy({
+    //         where: {
+    //             pet_picture_id: data.profileId,
+    //         },
+    //         by: ['petProfile_id'],
+    //         _sum: {
+    //             size_megabyte: true,
+    //         },
+    //         // })[0]['_sum']['size_megabyte'];
+    //     });
+    //     // console.log("v is: " + v);
+    //     console.log("v is: " + v[0]['_sum']['size_megabyte']);
+    //     return 0;
+    // }
     async sizePetPictures(data: {
         profileId: number,
     }): Promise<number> {
-        return this.prisma.petPicture.groupBy({
+        // Await the Prisma query to get the result
+        const result = await this.prisma.petPicture.groupBy({
             where: {
-                pet_picture_id: data.profileId,
+                petProfile_id: data.profileId, // Adjust field name if necessary
             },
             by: ['petProfile_id'],
             _sum: {
                 size_megabyte: true,
             },
-        })[0]['_sum']['size_megabyte'];
+        });
+
+        // Check if the result array is not empty and access the sum
+        if (result.length > 0 && result[0]._sum.size_megabyte !== null) {
+            console.log(result[0]._sum.size_megabyte);
+            return result[0]._sum.size_megabyte;
+        }
+
+        // Return 0 if no records were found or if the sum is null
+        console.log('no records found to sum');
+        return 0;
     }
 
     //Docuement
@@ -408,15 +436,26 @@ export class PetService {
     async sizePetDocuments(data: {
         profileId: number,
     }): Promise<number> {
-        return this.prisma.document.groupBy({
+        // Await the Prisma query to get the result
+        const result = await this.prisma.document.groupBy({
             where: {
-                petProfile_id: data.profileId,
+                petProfile_id: data.profileId, // Adjust field name if necessary
             },
             by: ['petProfile_id'],
             _sum: {
                 size_megabyte: true,
             },
-        })[0]['_sum']['size_megabyte'];
+        });
+
+        // Check if the result array is not empty and access the sum
+        if (result.length > 0 && result[0]._sum.size_megabyte !== null) {
+            console.log(result[0]._sum.size_megabyte);
+            return result[0]._sum.size_megabyte;
+        }
+
+        // Return 0 if no records were found or if the sum is null
+        console.log('no records found to sum');
+        return 0;
     }
 
     async Document(params: {

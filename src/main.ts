@@ -1,13 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-
+import * as dotenv from 'dotenv';
 // Import firebase-admin
 import * as admin from 'firebase-admin';
 import { ServiceAccount } from "firebase-admin";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-
+  dotenv.config({ path: '/home/nico/backend/.env' });
+  // console.log('Loaded ENV:', process.env);
   //Firebase config
 
   // Set the config options
