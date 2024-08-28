@@ -80,6 +80,7 @@ export class TagController {
             collarTag_id: string;
             // picturePath: string;
             tagModel_shortName: string;
+            sku: string;
         },
     ): Promise<CollarTag> {
         return this.tagService.createTag(
@@ -92,7 +93,8 @@ export class TagController {
                     connect: {
                         tagModel_shortName: data.tagModel_shortName
                     }
-                }
+                },
+                sku: data.sku
             }
         );
     }

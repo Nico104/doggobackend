@@ -17,8 +17,17 @@ export enum MediaType {
 export class S3uploadService {
     async upload(filepath: string, filename: string, type: MediaType, keyPath: string, bucket: string) {
 
+
         //get right configuration
         let key: string = keyPath + filename;
+
+        //! Contabo does buckets weird with the url with : instead of / so i put it all in one bucket
+        key = bucket + '/' + key;
+        bucket = 'tailfurpublics';
+
+        console.log(key);
+
+
         let contentType: string = 'image';
         if (type == MediaType.PDF) {
             contentType = 'application/pdf';
@@ -32,22 +41,20 @@ export class S3uploadService {
         const fs = require("fs");
 
         aws.config.update({
-            //WARUM geht nicht?
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-            // accessKeyId: "ELRZ0BD694LXHHWGNY11",
-            // secretAccessKey: "xdxuINDrJWSI9FHjQYCEwaIUvnjRnCaoFwXzyfqy"
         });
 
         // console.log("FilepPath is: " + filepath);
         // Create an S3 client setting the Endpoint to DigitalOcean Spaces
-        var spacesEndpoint = new aws.Endpoint('ams1.vultrobjects.com');
-        var s3 = new aws.S3({ endpoint: spacesEndpoint });
+        var spacesEndpoint = new aws.Endpoint('contabostorage.com/tailfurpublics'); //Weird config only for Contabo those fucks
+        var s3 = new aws.S3({ endpoint: spacesEndpoint, });
 
-        console.log
+        // aws.config.DisableHostPrefixInjection = true;
+        // aws.config.ForcePathStyle = true;
 
         var params = {
-            Bucket: bucket,
+            Bucket: 'eu2', //Weird config only for Contabo those fucks
             Key: key,
             Body: fs.createReadStream(filepath),
             ACL: 'public-read',
@@ -76,6 +83,10 @@ export class S3uploadService {
 
         //Check if picture
 
+        //! Contabo does buckets weird with the url with : instead of / so i put it all in one bucket
+        key = bucket + '/' + key;
+        bucket = 'tailfurpublics';
+
         const aws = require("aws-sdk");
 
         aws.config.update({
@@ -85,7 +96,8 @@ export class S3uploadService {
 
         // console.log("FilepPath is: " + filepath);
         // Create an S3 client setting the Endpoint to DigitalOcean Spaces
-        var spacesEndpoint = new aws.Endpoint('ams1.vultrobjects.com');
+        // var spacesEndpoint = new aws.Endpoint('eu2.contabostorage.com');
+        var spacesEndpoint = new aws.Endpoint('contabostorage.com/tailfurpublics'); //Weird config only for Contabo those fucks
         var s3 = new aws.S3({ endpoint: spacesEndpoint });
 
 
@@ -98,7 +110,8 @@ export class S3uploadService {
         // };
 
         var params = {
-            Bucket: bucket,
+            // Bucket: bucket,
+            Bucket: 'eu2', //Weird config only for Contabo those fucks
             Key: key,
             /* 
                where value for 'Key' equals 'pathName1/pathName2/.../pathNameN/fileName.ext'

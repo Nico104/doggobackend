@@ -130,7 +130,10 @@ export class ScanService {
     }
 
     async getIpDetails(ip: string, format: string = 'json'): Promise<any> {
-        const url = `https://freeipapi.com/api/json/${ip}`;
+        // const url = `https://freeipapi.com/api/json/${ip}`;
+        const url = `https://ipinfo.io/${ip}?token=dada5e453c5e98`;
+
+        console.log(url);
 
         try {
             // const response: AxiosResponse<any> = await this.httpService.get(url).toPromise();
@@ -140,11 +143,17 @@ export class ScanService {
 
             // Extract the relevant information
             const extractedData = {
-                ip: data.ipAddress,
+                // ip: data.ipAddress,
 
-                city: data.cityName,
+                // city: data.cityName,
 
-                country_name: data.countryName,
+                // country_name: data.countryName,
+
+                ip: data.ip,
+
+                city: data.city + ', ' + data.region,
+
+                country_name: data.country,
 
             };
 

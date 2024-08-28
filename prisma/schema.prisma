@@ -156,6 +156,7 @@ model CollarTag {
   createdDate      DateTime  @default(now())
   model            TagModel  @relation(fields: [tagModelTagModel], references: [tagModel])
   tagModelTagModel Int
+  sku              String?   @unique
 }
 
 model TagModel {
