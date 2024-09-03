@@ -348,24 +348,26 @@ model BehaviourInformation {
 }
 
 model Document {
-  document_id   Int           @id @default(autoincrement())
-  Pet           Pet           @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
-  petProfile_id Int
-  document_name String
-  document_link String
+  document_id      Int           @id @default(autoincrement())
+  Pet              Pet           @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  petProfile_id    Int
+  document_name    String
+  document_link    String
   // document_type DocumentType
-  content_type  String        @default("udf")
-  HealthIssue   HealthIssue[]
-  size_megabyte Float         @default(0)
+  content_type     String        @default("udf")
+  HealthIssue      HealthIssue[]
+  size_megabyte    Float         @default(0)
+  uploadedDateTime DateTime      @default(now())
 }
 
 model PetPicture {
-  pet_picture_id       Int    @id @default(autoincrement())
-  Pet                  Pet    @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
+  pet_picture_id       Int      @id @default(autoincrement())
+  Pet                  Pet      @relation(fields: [petProfile_id], references: [profile_id], onDelete: Cascade)
   petProfile_id        Int
   pet_picture_link     String
   pet_picture_priority Int
-  size_megabyte        Float  @default(0)
+  size_megabyte        Float    @default(0)
+  uploadedDateTime     DateTime @default(now())
 }
 
 // https://ipgeolocation.io/ip-location/78.104.182.197

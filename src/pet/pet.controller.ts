@@ -171,6 +171,10 @@ export class PetController {
                 where: {
                     petProfile_id: Number(profile_id)
                 },
+                orderBy: {
+                    pet_picture_id: 'desc'
+                    // uploadedDateTime: 'desc'
+                }
             }
         );
     }
@@ -370,6 +374,9 @@ export class PetController {
                 where: {
                     petProfile_id: Number(profile_id)
                 },
+                orderBy: {
+                    document_id: 'desc'
+                }
             }
         );
     }
@@ -418,7 +425,7 @@ export class PetController {
     @Get('getPetFromScan/:code')
     async getPetFromScan(@Param('code') code: string
     ): Promise<Pet> {
-        let pets = await this.petService.Pets(
+        let pets = await this.petService.PetsScan(
             {
                 where: {
                     Tag: {
@@ -428,7 +435,7 @@ export class PetController {
                         }
                     }
                 },
-                take: 1
+                take: 1,
             }
         );
         return pets.at(0);

@@ -100,9 +100,91 @@ export class PetService {
                         }
                     }
                 },
-                pet_pictures: true,
+                pet_pictures: {
+                    orderBy: {
+                        // uploadedDateTime: 'desc'
+                        pet_picture_id: 'desc'
+                    }
+                },
                 Tag: {
-                    include: { model: true }
+                    include: {
+                        model: true,
+                    }
+                },
+                pet_profile_scans: true,
+                BehaviourInformation: true,
+                MedicalInformation: {
+                    include: {
+                        health_issues: true
+                    }
+                },
+            }
+        });
+    }
+
+    async PetsScan(params: {
+        skip?: number;
+        take?: number;
+        cursor?: Prisma.PetWhereUniqueInput;
+        where?: Prisma.PetWhereInput;
+        orderBy?: Prisma.PetOrderByWithRelationInput;
+    }): Promise<Pet[]> {
+        const { skip, take, cursor, where, orderBy, } = params;
+        return this.prisma.pet.findMany({
+            skip,
+            take,
+            cursor,
+            where,
+            orderBy,
+            include: {
+                pet_description: {
+                    include: {
+                        description_language: true
+                    }
+                },
+                // pet_important_information: {
+                //     include: {
+                //         important_information_language: true
+                //     }
+                // },
+                // pet_important_information: true,
+                pet_documents: true,
+                Contact: {
+                    include: {
+                        contact_telephone_numbers: {
+                            // include: {
+                            //     Country: {
+                            //         include: {
+                            //             country_language: true
+                            //         }
+                            //     }
+                            // }
+                        },
+                        // contact_description: true,
+                        languages_spoken: true,
+                        social_medias: {
+                            include: {
+                                social_media: true
+                            }
+                        }
+                    }
+                },
+                pet_pictures: {
+                    orderBy: {
+                        // uploadedDateTime: 'desc'
+                        pet_picture_id: 'desc'
+                    }
+                },
+                Tag: {
+                    select: {
+                        model: {
+                            select: {
+                                picturePath: true,
+                                tagModel_shortName: true,
+                            }
+                        },
+                        publicCode: true,
+                    }
                 },
                 pet_profile_scans: true,
                 BehaviourInformation: true,
